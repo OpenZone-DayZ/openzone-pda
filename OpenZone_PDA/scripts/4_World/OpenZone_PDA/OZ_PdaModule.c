@@ -1894,6 +1894,24 @@ class OZ_PdaModule : CF_ModuleWorld
         OZ_Log.Info(summary);
     }
 
+    // Дзеркало OnMissionStart: інвокер ядра статичний і переживе місію, а
+    // модуль, що в ньому підписаний, -- ні (рація й дослідження роблять те
+    // саме). Сторінки й доступ із реєстрів ядра прибирає саме ядро, після
+    // всіх модулів (OZ_MissionServer.OnMissionFinish).
+    override void OnMissionFinish(Class sender, CF_EventArgs args)
+    {
+        super.OnMissionFinish(sender, args);
+
+        if (!GetGame().IsServer())
+            return;
+
+        if (m_BeaconTimer)
+            m_BeaconTimer.Stop();
+
+        OZ_SyncExtras.OnFill().Remove(OZ_PdaSyncFill);
+        s_Inst = NULL;
+    }
+
     // Слот з друкарською помилкою в імені -- класична мовчазна поломка: конфіг
     // парситься, предмет спавниться, а вкласти в нього нічого не можна, і в
     // лозі про це ані слова. Ловимо на буті, а не в грі.
