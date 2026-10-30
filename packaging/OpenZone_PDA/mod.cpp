@@ -4,7 +4,7 @@
 // texture and says nothing, so a wrong path is worse than none.
 
 name        = "OpenZone PDA";
-author      = "Zone Protocol";
+author      = "OpenZone";
 authorID    = "";
 version     = "0.1";
 description = "The PDA device of the OpenZone series: map, contacts, chat, notes, news, quests, modules. REQUIRES OpenZone Core. github.com/covalschi/openzone-pda";

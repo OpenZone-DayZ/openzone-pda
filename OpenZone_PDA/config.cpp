@@ -132,7 +132,7 @@ class CfgMods
     {
         dir = "OpenZone_PDA";
         name = "OpenZone PDA";
-        author = "Zone Protocol";
+        author = "OpenZone";
         version = "0.1.0";
         type = "mod";
         // 2: markers appended to the item's CF record. Bumping this is what
