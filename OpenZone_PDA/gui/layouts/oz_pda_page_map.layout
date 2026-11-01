@@ -558,6 +558,7 @@ FrameWidgetClass OZ_PageMap {
          font "gui/fonts/MetronBook14"
          "exact text" 1
          lines 3
+         "limit visible" 1
         }
        }
       }

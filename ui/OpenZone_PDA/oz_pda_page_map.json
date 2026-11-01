@@ -47,7 +47,7 @@
             ]}}
         }}},
         {"field": {"name": "MarkerName"}},
-        {"field": {"name": "MarkerDesc", "h": 58, "lines": 3,
+        {"field": {"name": "MarkerDesc", "h": 58, "lines": 3, "wrap": true,
                    "note": "Багаторядкове поле: lines дає MultilineEditBoxWidgetClass. Висота 58, бо рамка з'їдає 8: усередині лишається 50 -- рівно стільки, скільки мало поле в рукописному файлі. При 50 всередині було 42, а це 2.3 рядка MetronBook14 (~18.5 одиниці на рядок), хоч lines і каже три."}},
         {"hbox": {"name": "MarkerBtns", "h": "$size.button", "gap": "$space.tight", "children": [
           {"button": {"name": "BtnMarkSave", "w": "fill", "font": "small"}},

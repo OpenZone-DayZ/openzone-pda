@@ -44,7 +44,7 @@
         {"vbox": {"gap": "$space.gap", "children": [
           {"label": {"name": "CmpHead", "h": 20, "font": "header", "color": "$accent"}},
           {"field": {"name": "CmpTitle", "h": 32}},
-          {"field": {"name": "CmpBody", "h": "fill", "lines": 16}},
+          {"field": {"name": "CmpBody", "h": "fill", "lines": 16, "wrap": true}},
           {"hbox": {"h": "$size.field", "gap": "$space.gap", "children": [
             {"button": {"name": "BtnCmpWho", "w": 400, "font": "small"}},
             {"gap":    {"w": "fill"}},

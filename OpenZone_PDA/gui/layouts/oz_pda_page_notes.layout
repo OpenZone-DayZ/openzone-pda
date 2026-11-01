@@ -255,6 +255,7 @@ FrameWidgetClass OZ_PageNotes {
        font "gui/fonts/MetronBook14"
        "exact text" 1
        lines 15
+       "limit visible" 1
       }
      }
     }

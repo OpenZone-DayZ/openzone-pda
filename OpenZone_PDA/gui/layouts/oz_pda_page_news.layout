@@ -432,6 +432,7 @@ FrameWidgetClass OZ_PageNews {
          font "gui/fonts/MetronBook14"
          "exact text" 1
          lines 16
+         "limit visible" 1
         }
        }
       }

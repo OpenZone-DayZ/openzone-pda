@@ -22,7 +22,7 @@
     {"panel": {"name": "EditorPane", "w": "fill", "color": "$panel", "inset": "$space.overlay", "click": true, "children": [
       {"vbox": {"gap": "$space.gap", "children": [
         {"field": {"name": "NoteTitle", "h": 32}},
-        {"field": {"name": "NoteBody", "h": "fill", "lines": 15}},
+        {"field": {"name": "NoteBody", "h": "fill", "lines": 15, "wrap": true}},
         {"hbox": {"h": "$size.button", "gap": "$space.gap", "children": [
           {"button": {"name": "BtnSave", "w": 200, "font": "small"}},
           {"button": {"name": "BtnDelete", "w": 200, "font": "small"}},
