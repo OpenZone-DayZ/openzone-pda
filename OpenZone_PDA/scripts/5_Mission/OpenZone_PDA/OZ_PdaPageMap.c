@@ -29,6 +29,9 @@ class OZ_PdaPageMap : OZ_PdaPage
     private Widget                 m_Rows;
     private EditBoxWidget          m_EditName;
     private MultilineEditBoxWidget m_EditDesc;
+    // Що Pick поклав в опис і з якого тексту -- як тіло записки.
+    private string                 m_DescShown = "";
+    private string                 m_DescKept = "";
     private ButtonWidget           m_BtnSave;
     private ButtonWidget           m_BtnShare;
     private ButtonWidget           m_BtnToCar;
@@ -666,8 +669,14 @@ class OZ_PdaPageMap : OZ_PdaPage
         {
             if (m_EditName)
                 m_EditName.SetText(m.Name);
+            // Як у записках: розриви Wrap склеїть Read на збереженні, а
+            // нетронутий опис Read поверне збереженим.
             if (m_EditDesc)
-                m_EditDesc.SetText(m.Desc);
+            {
+                m_DescKept  = m.Desc;
+                m_DescShown = OZ_Unwrap.Wrap(m.Desc, m_EditDesc, TextWidget.Cast(Wgt("DescRuler")));
+                m_EditDesc.SetText(m_DescShown);
+            }
         }
         else
         {
@@ -722,7 +731,7 @@ class OZ_PdaPageMap : OZ_PdaPage
             // GetText багаторядкового поля пише в out-параметр, а не
             // повертає: він успадкований від іншого прото, ніж у EditBox.
             // Через розклейку: опис теж обростав переносами посеред слів.
-            string d = OZ_Unwrap.Read(m_EditDesc, TextWidget.Cast(Wgt("DescRuler")));
+            string d = OZ_Unwrap.Read(m_EditDesc, TextWidget.Cast(Wgt("DescRuler")), m_DescShown, m_DescKept);
             m.Desc = d;
         }
 

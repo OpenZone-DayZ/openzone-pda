@@ -15,6 +15,10 @@ class OZ_PdaPageNotes : OZ_PdaPage
     private ref array<Widget> m_NoteRows = new array<Widget>();
     private EditBoxWidget m_Title;
     private MultilineEditBoxWidget m_Body;
+    // Що OpenSelected поклав у тіло і з якого збереженого тексту: нетронуте
+    // тіло OZ_Unwrap.Read віддає збереженим без розбору.
+    private string m_BodyShown = "";
+    private string m_BodyKept = "";
     private ButtonWidget m_BtnNew;
     private ButtonWidget m_BtnSave;
     private ButtonWidget m_BtnDelete;
@@ -178,8 +182,15 @@ class OZ_PdaPageNotes : OZ_PdaPage
 
         if (m_Title)
             m_Title.SetText(n.Title);
+        // Поле переносить лише набране: збережений абзац без Wrap стояв би
+        // одним рядком, обрізаним праворуч. Розриви Wrap склеїть Read на
+        // збереженні.
         if (m_Body)
-            m_Body.SetText(n.Body);
+        {
+            m_BodyKept  = n.Body;
+            m_BodyShown = OZ_Unwrap.Wrap(n.Body, m_Body, TextWidget.Cast(Wgt("WrapRuler")));
+            m_Body.SetText(m_BodyShown);
+        }
 
         string when = "#STR_OZ_NOTES_EDITED";
         when += "  " + n.EditedAt;
@@ -203,7 +214,7 @@ class OZ_PdaPageNotes : OZ_PdaPage
             // Не сирий GetText: він віддає ВІЗУАЛЬНІ переноси як \n, і
             // збережений текст обростав розривами посеред слів ("the b/arn").
             // OZ_Unwrap лишає тільки Enter-и людини.
-            body = OZ_Unwrap.Read(m_Body, TextWidget.Cast(Wgt("WrapRuler")));
+            body = OZ_Unwrap.Read(m_Body, TextWidget.Cast(Wgt("WrapRuler")), m_BodyShown, m_BodyKept);
             n.Body = body;
         }
 

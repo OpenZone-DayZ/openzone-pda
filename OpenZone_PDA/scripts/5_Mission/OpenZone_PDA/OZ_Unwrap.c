@@ -38,6 +38,9 @@ class OZ_Unwrap
 {
     // Внутрішні поля боксу в НАТИВНИХ пікселях: край поля не збігається з
     // краєм тексту. Звірено живцем: рядок ламався на 523px у боксі 531px.
+    // Зі шрифтом etelkatextpro14 поріг на символ вужчий за рушій (2026-11-01):
+    // рушій ставить у рядок 69 «W» на 1920x1080 і 102 на 3840x1600, а
+    // лінійка з цим відступом пускає 68 і 101.
     private static const int PAD_PX = 12;
 
     // Висота полотна, під яку намальовані розкладки. Масштаб лінійки до
@@ -48,7 +51,11 @@ class OZ_Unwrap
     // Ліміт рядка поля в символах: довший рядок рушій ламає сам.
     private static const int LINE_CAP = 200;
 
-    static string Read(MultilineEditBoxWidget box, TextWidget ruler)
+    // shown і kept -- що сторінка поклала в поле через Wrap і з якого
+    // збереженого тексту. Поле, якого не чіпали, віддає kept без розбору
+    // (чому -- див. Wrap). Поле, у яке текст поклали не через Wrap, їх не
+    // передає.
+    static string Read(MultilineEditBoxWidget box, TextWidget ruler, string shown = "", string kept = "")
     {
         // Спершу вартовий, потім читання: перевірка `!box` стояла ПІСЛЯ
         // box.GetText і не встигала захистити ні від чого.
@@ -58,20 +65,14 @@ class OZ_Unwrap
         string raw;
         box.GetText(raw);
 
+        if (shown != "" && raw == shown)
+            return kept;
+
         if (!ruler || raw.IndexOf("\n") == -1)
             return raw;
 
-        float bw;
-        float bh;
-        box.GetSize(bw, bh);
-
-        float sw;
-        float sh;
-        GetGame().GetWorkspace().GetScreenSize(sw, sh);
-
-        // Поріг у одиницях ЛІНІЙКИ: корисна ширина боксу в тому масштабі,
-        // яким інтерфейс малює TextWidget.
-        int inner = (bw - PAD_PX) * (sh / DESIGN_H);
+        // Поріг -- той самий, що й у Wrap: обидва беруть його з Inner.
+        int inner = Inner(box);
         if (inner <= 0)
             return raw;
 
@@ -164,6 +165,100 @@ class OZ_Unwrap
 
         ruler.SetText("");
         return glued;
+    }
+
+    // Дзеркало Read: вставляє \n там, де рушій зламав би рядок сам, -- щоб
+    // збережений текст, покладений у поле через SetText, читався в межах
+    // поля. Поле переносить лише НАБРАНЕ: текст із SetText воно показує
+    // одним рядком, обрізаним праворуч, навіть з "limit visible" 1 (зміряно
+    // 2026-11-01, DayZ 1.30.164200). Ламає за тими самими двома правилами,
+    // що й Read розпізнає, -- 200 символів або наступний символ уже не
+    // влазить у той самий поріг тією самою лінійкою. Тож Read на збереженні
+    // склеює кожен такий розрив назад, і в збережений текст вони не
+    // потрапляють.
+    //
+    // Enter людини одразу після МАЙЖЕ ПОВНОГО рядка від розриву Wrap не
+    // відрізнить жоден вимір: «136 W, Enter, x» і «136 W x» Wrap показує
+    // однаково, байт у байт. Зміряно 2026-11-01 на 1920x1080: нетронута
+    // записка після повторного збереження втратила такий Enter (138 -> 137
+    // байт). Тому сторінка тримає показане й збережене та передає обидва в
+    // Read: нетронуте поле повертає збережене як є. У правленому полі ця
+    // межа лишається -- смуга шириною в символ у кінці абзацу. До Wrap було
+    // гірше: збережений абзац ставав одним рядком, ширшим за поле, і Enter
+    // після нього губився на КОЖНОМУ повторному збереженні.
+    static string Wrap(string text, MultilineEditBoxWidget box, TextWidget ruler)
+    {
+        if (!box || !ruler || text == "")
+            return text;
+
+        int inner = Inner(box);
+        if (inner <= 0)
+            return text;
+
+        string wrapped = "";
+        string line = "";
+        int lineChars = 0;
+        int n = text.Length();
+        int i = 0;
+
+        while (i < n)
+        {
+            // Один СИМВОЛ: провідний байт і всі байти-продовження за ним.
+            int end = i + 1;
+            while (end < n && (text.Get(end).ToAscii() & 0xC0) == 0x80)
+                end++;
+            string ch = text.Substring(i, end - i);
+            i = end;
+
+            if (ch == "\n")
+            {
+                wrapped += line + "\n";
+                line = "";
+                lineChars = 0;
+                continue;
+            }
+
+            if (line != "")
+            {
+                bool brk = lineChars >= LINE_CAP;
+                if (!brk)
+                {
+                    ruler.SetText(line + ch);
+                    int tw;
+                    int th;
+                    ruler.GetTextSize(tw, th);
+                    brk = tw > inner;
+                }
+
+                if (brk)
+                {
+                    wrapped += line + "\n";
+                    line = "";
+                    lineChars = 0;
+                }
+            }
+
+            line += ch;
+            lineChars++;
+        }
+
+        ruler.SetText("");
+        return wrapped + line;
+    }
+
+    // Поріг у одиницях ЛІНІЙКИ: корисна ширина боксу в тому масштабі, яким
+    // інтерфейс малює TextWidget. Нуль -- поле ще не має розміру.
+    private static int Inner(MultilineEditBoxWidget box)
+    {
+        float bw;
+        float bh;
+        box.GetSize(bw, bh);
+
+        float sw;
+        float sh;
+        GetGame().GetWorkspace().GetScreenSize(sw, sh);
+
+        return (bw - PAD_PX) * (sh / DESIGN_H);
     }
 
     // Скільки СИМВОЛІВ у рядку UTF-8: байти-продовження (10xxxxxx) не
