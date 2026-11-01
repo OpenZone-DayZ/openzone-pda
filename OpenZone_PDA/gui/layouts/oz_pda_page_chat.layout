@@ -434,7 +434,7 @@ FrameWidgetClass OZ_PageChat {
        priority 1
        style Default
        text ""
-       font "gui/fonts/MetronBook14"
+       font "gui/fonts/etelkatextpro14"
        "exact text" 1
       }
      }
@@ -614,7 +614,7 @@ FrameWidgetClass OZ_PageChat {
        color 0.58 0.65 0.71 1
        priority 1
        text ""
-       font "gui/fonts/MetronBook14"
+       font "gui/fonts/etelkatextpro14"
        "exact text" 1
        "text halign" left
        "text valign" top
@@ -691,7 +691,7 @@ FrameWidgetClass OZ_PageChat {
          priority 1
          style Default
          text ""
-         font "gui/fonts/MetronBook14"
+         font "gui/fonts/etelkatextpro14"
          "exact text" 1
         }
        }
@@ -733,7 +733,7 @@ FrameWidgetClass OZ_PageChat {
          priority 1
          style Default
          text ""
-         font "gui/fonts/MetronBook14"
+         font "gui/fonts/etelkatextpro14"
          "exact text" 1
         }
        }

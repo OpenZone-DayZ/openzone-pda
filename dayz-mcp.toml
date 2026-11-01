@@ -25,7 +25,10 @@ mods = ["OpenZone_PDA", "OpenZone_PDA_VPP"]
 # machine path could not live in the half of the profile that is meant for
 # machine paths. Relative works for anyone who checks the series out the way
 # it is laid out, side by side under one directory.
-tokens = "../openzone-core/ui/tokens.json"
+#
+# The PDA layers ui/tokens.json over that palette, read second: it swaps the
+# `field` face for one that draws the Ukrainian capital I (the note there).
+tokens = ["../openzone-core/ui/tokens.json", "ui/tokens.json"]
 
 [expect]
 ready_line   = "pda loaded"

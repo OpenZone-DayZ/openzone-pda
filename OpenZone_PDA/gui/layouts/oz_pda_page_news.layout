@@ -21,7 +21,7 @@ FrameWidgetClass OZ_PageNews {
    color 0 0 0 0
    priority 0
    text ""
-   font "gui/fonts/MetronBook14"
+   font "gui/fonts/etelkatextpro14"
    "exact text" 1
    "text halign" left
    "text valign" center
@@ -387,7 +387,7 @@ FrameWidgetClass OZ_PageNews {
          priority 1
          style Default
          text ""
-         font "gui/fonts/MetronBook14"
+         font "gui/fonts/etelkatextpro14"
          "exact text" 1
         }
        }
@@ -429,7 +429,7 @@ FrameWidgetClass OZ_PageNews {
          priority 1
          style Default
          text ""
-         font "gui/fonts/MetronBook14"
+         font "gui/fonts/etelkatextpro14"
          "exact text" 1
          lines 16
          "limit visible" 1
