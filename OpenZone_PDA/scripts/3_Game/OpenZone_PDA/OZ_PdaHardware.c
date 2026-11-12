@@ -518,10 +518,13 @@ class OZ_PdaHardware
         return s_Cfg.Carriers.Count();
     }
 
-    static void ServerLoad()
+    // rewrite = false -- the read of "reload every module" (OZ_PdaFacts.Reload): neither
+    // Validate's fixes nor the foreign declarations are written; both stay in memory until
+    // a load that writes (the next start, the next apply from the window).
+    static void ServerLoad(bool rewrite = true)
     {
         s_Cfg = new OZ_PdaHardwareConfig();
-        s_Writable = OZ_ConfigLoader<OZ_PdaHardwareConfig>.Load(OZ_PdaConst.HARDWARE, "Hardware", s_Cfg);
+        s_Writable = OZ_ConfigLoader<OZ_PdaHardwareConfig>.Load(OZ_PdaConst.HARDWARE, "Hardware", s_Cfg, true, rewrite);
 
         // Чужі оголошення накладаємо ПІСЛЯ завантаження конфіга -- адмін
         // лишається головнішим -- і робимо це при КОЖНОМУ завантаженні, а не
@@ -539,10 +542,14 @@ class OZ_PdaHardware
         // побачити плату рації, ні перекрити її, не знаючи класнейма. Тепер
         // після кожного завантаження файл наздоганяє пам'ять; що кому
         // належить, каже Origin. Пишемо лише коли щось справді додалось.
-        if (changed && s_Writable)
+        if (changed && s_Writable && rewrite)
         {
             OZ_ConfigLoader<OZ_PdaHardwareConfig>.Save(OZ_PdaConst.HARDWARE, "Hardware", s_Cfg);
             OZ_Log.Info("hardware: foreign module declarations written to Hardware.json");
+        }
+        else if (changed && !rewrite)
+        {
+            OZ_Log.Info("hardware: foreign module declarations are in memory; this read writes no file");
         }
         else if (changed)
         {

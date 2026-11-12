@@ -1874,6 +1874,9 @@ class OZ_PdaModule : CF_ModuleWorld
         OZ_AdminCfg.Register("Profiles", OZ_PdaConst.PROFILES, new OZ_PdaProfilesApplier(), "pda");
         OZ_AdminCfg.Register("Hardware", OZ_PdaConst.HARDWARE, new OZ_PdaHardwareApplier(), "pda");
 
+        // The PDA's card on Ядро › Огляд (VPP rework 2026-11-12, design 4.3).
+        OZ_AdminFacts.Register(new OZ_PdaFacts());
+
         // Маячки транспондера РОЗСИЛАЄ сервер -- раз на кілька секунд тим,
         // у кого антена справді працює. Клієнт більше нічого не опитує:
         // на сорока гравцях це мінус десять запитів на секунду.

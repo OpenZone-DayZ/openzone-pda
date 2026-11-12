@@ -596,14 +596,17 @@ class OZ_PdaProfiles
 
     static int Gen() { return s_Gen; }
 
-    static void ServerLoad()
+    // rewrite = false -- the read of "reload every module" (OZ_PdaFacts.Reload): neither
+    // Validate's fixes nor a page another mod offers are written; both stay in memory
+    // until a load that writes.
+    static void ServerLoad(bool rewrite = true)
     {
         s_Cfg = new OZ_PdaProfilesConfig();
-        s_Writable = OZ_ConfigLoader<OZ_PdaProfilesConfig>.Load(OZ_PdaConst.PROFILES, "Profiles", s_Cfg);
+        s_Writable = OZ_ConfigLoader<OZ_PdaProfilesConfig>.Load(OZ_PdaConst.PROFILES, "Profiles", s_Cfg, true, rewrite);
 
         // Пропозиції, що прийшли ДО завантаження (порядок OnMissionStart між
         // модами не гарантований), лягають тут.
-        ApplyOffers();
+        ApplyOffers(rewrite);
 
         s_Gen++;
     }
@@ -643,7 +646,7 @@ class OZ_PdaProfiles
         ApplyOffers();
     }
 
-    private static void ApplyOffers()
+    private static void ApplyOffers(bool write = true)
     {
         if (!s_Cfg || !s_Cfg.Profiles || !s_OfferPage)
             return;
@@ -679,7 +682,7 @@ class OZ_PdaProfiles
             }
         }
 
-        if (changed && s_Writable)
+        if (changed && s_Writable && write)
             OZ_ConfigLoader<OZ_PdaProfilesConfig>.Save(OZ_PdaConst.PROFILES, "Profiles", s_Cfg);
     }
 

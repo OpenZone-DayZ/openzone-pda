@@ -301,10 +301,13 @@ class OZ_PdaTuning : OZ_ConfigBase
         return 1;
     }
 
-    static void ServerLoad()
+    // rewrite = false -- the read of "reload every module" (OZ_PdaFacts.Reload): what
+    // Validate fixes stays in memory, and the file stays as the admin left it. A missing
+    // or older file is still written, with its backup, as at the start.
+    static void ServerLoad(bool rewrite = true)
     {
         s_Inst = new OZ_PdaTuning();
-        OZ_ConfigLoader<OZ_PdaTuning>.Load(OZ_Const.PROFILE_DIR + "\\OZ_PDA_Tuning.json", "Tuning", s_Inst);
+        OZ_ConfigLoader<OZ_PdaTuning>.Load(OZ_Const.PROFILE_DIR + "\\OZ_PDA_Tuning.json", "Tuning", s_Inst, true, rewrite);
     }
 }
 
