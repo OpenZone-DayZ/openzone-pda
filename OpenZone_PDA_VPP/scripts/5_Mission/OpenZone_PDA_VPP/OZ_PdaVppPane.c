@@ -1032,12 +1032,12 @@ modded class OZ_VppAdminMenu
     private void PdaHwNextKind()
     {
         string now = PdaTrimmed("HwKind");
-        string next = OZ_PdaConst.MOD_GPS;
+        string nextKind = OZ_PdaConst.MOD_GPS;
         if (now == OZ_PdaConst.MOD_GPS)
-            next = OZ_PdaConst.MOD_SPY;
+            nextKind = OZ_PdaConst.MOD_SPY;
         else if (now == OZ_PdaConst.MOD_SPY)
-            next = OZ_PdaConst.MOD_DECRYPTOR;
-        SetEdit("HwKind", next);
+            nextKind = OZ_PdaConst.MOD_DECRYPTOR;
+        SetEdit("HwKind", nextKind);
     }
 
     private string PdaHwFormClass()
@@ -1368,14 +1368,14 @@ modded class OZ_VppAdminMenu
     // ================================================= Ядро › Файли конфігів
 
     // The core's files page, opened on one of the PDA's files: the raw text, paste and
-    // copy, the server's apply.
+    // copy, the server's apply. RawPick is the page's own pick: it empties the editor,
+    // marks the row and asks for the file.
     private void PdaOpenFile(string name)
     {
         if (!m_Panes.Contains("raw"))
             return;
-        m_RawPicked = name;
         ShowPane("raw");
-        AskCfg(name);
+        RawPick(name);
     }
 
     // ================================================= шматки
