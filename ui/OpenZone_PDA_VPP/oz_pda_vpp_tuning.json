@@ -1,0 +1,96 @@
+{
+  "layout": "oz_pda_vpp_tuning",
+  "note": "КПК › Налаштування: Tuning.json as a form. Created by OZ_PdaVppPane.OnCreate under M_SUB_WIDGET and registered as the page pda.tuning of the module pda; the shell moves it into the content area. Colours are the window's metal (the core's vpp* tokens); the field frames and panel borders the generator writes in the series colours are repainted to metal when the page registers (OZ_VppPaint). КПК › Налаштування (VPP rework 2026-11-12, design 5.3; artboard PdaTuning): Tuning.json as a form in six groups over three columns -- every field of OZ_PdaTuning, GroupInviteTtlSeconds and MapHome included. Under each caption the default of the field, in the alert colour with 'changed' while the box differs from the file. Names the script reads: Tun_<field>, TunD_<field>, Tun_<field>Frame, PdaTunDirty, PdaTunHint (the page's hint line, named to RegisterPage), BtnPdaTun*, PdaTunHead, PdaTunHeadRule, PdaTunFoot, PdaTunFootRule.",
+  "root": {"frame": {"name": "PdaTunPane", "size": "$vpp.content", "hidden": true, "priority": 2, "note": "Hidden: ShowPane shows the open page and hides the rest. The shell moves the root into the content area and sizes it; 1060 x 680 is the content area of the default window.", "children": [
+    {"frame": {"name": "PdaTunRoot", "size": "fill", "note": "Proportional: follows the pane root when the shell resizes it.", "children": [
+      {"frame": {"name": "PdaTunHead", "at": [0, 0], "size": [1060, 60], "note": "The page head: title and one line on the left, the page's actions anchored right. OnWindowResized keeps it as wide as the page, so the actions follow the right edge.", "children": [
+        {"label": {"name": "PdaTunTitle", "at": [24, 9], "size": [640, 26], "text": "#STR_OZ_PDA_VPP_TUN_TITLE", "font": "title", "color": "$vppText"}},
+        {"label": {"name": "PdaTunSub", "at": [24, 35], "size": [700, 18], "text": "#STR_OZ_PDA_VPP_TUN_SUB", "font": "small", "color": "$vppMuted"}},
+        {"button": {"name": "BtnPdaTunOpen", "at": [24, 15], "size": [260, 30], "text": "#STR_OZ_PDA_VPP_OPEN_TUN", "bg": "$vppRaised", "edge": "$vppEdge", "color": "$vppText", "font": "small", "anchor": "right", "note": "Opens Ядро › Файли конфігів on Tuning.json: the raw file, paste and copy, the server's apply."}},
+        {"panel": {"name": "PdaTunHeadRule", "at": [0, 59], "size": [1060, 1], "color": "$vppEdge"}}
+      ]}},
+      {"panel": {"name": "PdaTunG_Chat", "at": [24, 76], "size": [326, 348], "color": "$vppHead", "edge": true, "children": [
+        {"label": {"name": "PdaTunG_ChatLbl", "at": [16, 6], "size": [294, 18], "text": "#STR_OZ_PDA_VPP_G_CHAT", "font": "small", "color": "$vppMuted"}},
+        {"label": {"name": "TunL_ChatMsgMaxBytes", "at": [16, 32], "size": [182, 20], "text": "#STR_OZ_PDA_VPP_F_CHAT_MSG", "font": "small", "color": "$vppText"}},
+        {"label": {"name": "TunD_ChatMsgMaxBytes", "at": [16, 52], "size": [182, 18], "text": "", "font": "small", "color": "$vppMuted"}},
+        {"field": {"name": "Tun_ChatMsgMaxBytes", "at": [206, 36], "size": [104, 32], "color": "$vppText"}},
+        {"label": {"name": "TunL_ChatTitleMaxBytes", "at": [16, 76], "size": [182, 20], "text": "#STR_OZ_PDA_VPP_F_CHAT_TITLE", "font": "small", "color": "$vppText"}},
+        {"label": {"name": "TunD_ChatTitleMaxBytes", "at": [16, 96], "size": [182, 18], "text": "", "font": "small", "color": "$vppMuted"}},
+        {"field": {"name": "Tun_ChatTitleMaxBytes", "at": [206, 80], "size": [104, 32], "color": "$vppText"}},
+        {"label": {"name": "TunL_ChatDescMaxBytes", "at": [16, 120], "size": [182, 20], "text": "#STR_OZ_PDA_VPP_F_CHAT_DESC", "font": "small", "color": "$vppText"}},
+        {"label": {"name": "TunD_ChatDescMaxBytes", "at": [16, 140], "size": [182, 18], "text": "", "font": "small", "color": "$vppMuted"}},
+        {"field": {"name": "Tun_ChatDescMaxBytes", "at": [206, 124], "size": [104, 32], "color": "$vppText"}},
+        {"label": {"name": "TunL_ChatHistoryOpen", "at": [16, 164], "size": [182, 20], "text": "#STR_OZ_PDA_VPP_F_CHAT_HIST_OPEN", "font": "small", "color": "$vppText"}},
+        {"label": {"name": "TunD_ChatHistoryOpen", "at": [16, 184], "size": [182, 18], "text": "", "font": "small", "color": "$vppMuted"}},
+        {"field": {"name": "Tun_ChatHistoryOpen", "at": [206, 168], "size": [104, 32], "color": "$vppText"}},
+        {"label": {"name": "TunL_ChatHistoryPage", "at": [16, 208], "size": [182, 20], "text": "#STR_OZ_PDA_VPP_F_CHAT_HIST_PAGE", "font": "small", "color": "$vppText"}},
+        {"label": {"name": "TunD_ChatHistoryPage", "at": [16, 228], "size": [182, 18], "text": "", "font": "small", "color": "$vppMuted"}},
+        {"field": {"name": "Tun_ChatHistoryPage", "at": [206, 212], "size": [104, 32], "color": "$vppText"}},
+        {"label": {"name": "TunL_ChatGroupMax", "at": [16, 252], "size": [182, 20], "text": "#STR_OZ_PDA_VPP_F_CHAT_GROUP", "font": "small", "color": "$vppText"}},
+        {"label": {"name": "TunD_ChatGroupMax", "at": [16, 272], "size": [182, 18], "text": "", "font": "small", "color": "$vppMuted"}},
+        {"field": {"name": "Tun_ChatGroupMax", "at": [206, 256], "size": [104, 32], "color": "$vppText"}},
+        {"label": {"name": "TunL_GroupInviteTtlSeconds", "at": [16, 296], "size": [182, 20], "text": "#STR_OZ_PDA_VPP_F_CHAT_INVITE", "font": "small", "color": "$vppText"}},
+        {"label": {"name": "TunD_GroupInviteTtlSeconds", "at": [16, 316], "size": [182, 18], "text": "", "font": "small", "color": "$vppMuted"}},
+        {"field": {"name": "Tun_GroupInviteTtlSeconds", "at": [206, 300], "size": [104, 32], "color": "$vppText"}}
+      ]}},
+      {"panel": {"name": "PdaTunG_Pin", "at": [366, 76], "size": [326, 128], "color": "$vppHead", "edge": true, "children": [
+        {"label": {"name": "PdaTunG_PinLbl", "at": [16, 6], "size": [294, 18], "text": "#STR_OZ_PDA_VPP_G_PIN", "font": "small", "color": "$vppMuted"}},
+        {"label": {"name": "TunL_PinMaxFails", "at": [16, 32], "size": [182, 20], "text": "#STR_OZ_PDA_VPP_F_PIN_FAILS", "font": "small", "color": "$vppText"}},
+        {"label": {"name": "TunD_PinMaxFails", "at": [16, 52], "size": [182, 18], "text": "", "font": "small", "color": "$vppMuted"}},
+        {"field": {"name": "Tun_PinMaxFails", "at": [206, 36], "size": [104, 32], "color": "$vppText"}},
+        {"label": {"name": "TunL_PinLockoutSeconds", "at": [16, 76], "size": [182, 20], "text": "#STR_OZ_PDA_VPP_F_PIN_LOCK", "font": "small", "color": "$vppText"}},
+        {"label": {"name": "TunD_PinLockoutSeconds", "at": [16, 96], "size": [182, 18], "text": "", "font": "small", "color": "$vppMuted"}},
+        {"field": {"name": "Tun_PinLockoutSeconds", "at": [206, 80], "size": [104, 32], "color": "$vppText"}}
+      ]}},
+      {"panel": {"name": "PdaTunG_Notes", "at": [366, 220], "size": [326, 128], "color": "$vppHead", "edge": true, "children": [
+        {"label": {"name": "PdaTunG_NotesLbl", "at": [16, 6], "size": [294, 18], "text": "#STR_OZ_PDA_VPP_G_NOTES", "font": "small", "color": "$vppMuted"}},
+        {"label": {"name": "TunL_NoteTitleMaxBytes", "at": [16, 32], "size": [182, 20], "text": "#STR_OZ_PDA_VPP_F_NOTE_TITLE", "font": "small", "color": "$vppText"}},
+        {"label": {"name": "TunD_NoteTitleMaxBytes", "at": [16, 52], "size": [182, 18], "text": "", "font": "small", "color": "$vppMuted"}},
+        {"field": {"name": "Tun_NoteTitleMaxBytes", "at": [206, 36], "size": [104, 32], "color": "$vppText"}},
+        {"label": {"name": "TunL_NoteBodyMaxBytes", "at": [16, 76], "size": [182, 20], "text": "#STR_OZ_PDA_VPP_F_NOTE_BODY", "font": "small", "color": "$vppText"}},
+        {"label": {"name": "TunD_NoteBodyMaxBytes", "at": [16, 96], "size": [182, 18], "text": "", "font": "small", "color": "$vppMuted"}},
+        {"field": {"name": "Tun_NoteBodyMaxBytes", "at": [206, 80], "size": [104, 32], "color": "$vppText"}}
+      ]}},
+      {"panel": {"name": "PdaTunG_Contacts", "at": [366, 364], "size": [326, 128], "color": "$vppHead", "edge": true, "children": [
+        {"label": {"name": "PdaTunG_ContactsLbl", "at": [16, 6], "size": [294, 18], "text": "#STR_OZ_PDA_VPP_G_CONTACTS", "font": "small", "color": "$vppMuted"}},
+        {"label": {"name": "TunL_FriendReachMeters", "at": [16, 32], "size": [182, 20], "text": "#STR_OZ_PDA_VPP_F_REACH", "font": "small", "color": "$vppText"}},
+        {"label": {"name": "TunD_FriendReachMeters", "at": [16, 52], "size": [182, 18], "text": "", "font": "small", "color": "$vppMuted"}},
+        {"field": {"name": "Tun_FriendReachMeters", "at": [206, 36], "size": [104, 32], "color": "$vppText"}},
+        {"label": {"name": "TunL_SwapOfferTtlSeconds", "at": [16, 76], "size": [182, 20], "text": "#STR_OZ_PDA_VPP_F_OFFER", "font": "small", "color": "$vppText"}},
+        {"label": {"name": "TunD_SwapOfferTtlSeconds", "at": [16, 96], "size": [182, 18], "text": "", "font": "small", "color": "$vppMuted"}},
+        {"field": {"name": "Tun_SwapOfferTtlSeconds", "at": [206, 80], "size": [104, 32], "color": "$vppText"}}
+      ]}},
+      {"panel": {"name": "PdaTunG_Marks", "at": [708, 76], "size": [326, 172], "color": "$vppHead", "edge": true, "children": [
+        {"label": {"name": "PdaTunG_MarksLbl", "at": [16, 6], "size": [294, 18], "text": "#STR_OZ_PDA_VPP_G_MARKS", "font": "small", "color": "$vppMuted"}},
+        {"label": {"name": "TunL_MarkerNameMaxBytes", "at": [16, 32], "size": [182, 20], "text": "#STR_OZ_PDA_VPP_F_MARK_NAME", "font": "small", "color": "$vppText"}},
+        {"label": {"name": "TunD_MarkerNameMaxBytes", "at": [16, 52], "size": [182, 18], "text": "", "font": "small", "color": "$vppMuted"}},
+        {"field": {"name": "Tun_MarkerNameMaxBytes", "at": [206, 36], "size": [104, 32], "color": "$vppText"}},
+        {"label": {"name": "TunL_MarkerDescMaxBytes", "at": [16, 76], "size": [182, 20], "text": "#STR_OZ_PDA_VPP_F_MARK_DESC", "font": "small", "color": "$vppText"}},
+        {"label": {"name": "TunD_MarkerDescMaxBytes", "at": [16, 96], "size": [182, 18], "text": "", "font": "small", "color": "$vppMuted"}},
+        {"field": {"name": "Tun_MarkerDescMaxBytes", "at": [206, 80], "size": [104, 32], "color": "$vppText"}},
+        {"label": {"name": "TunL_MapHome", "at": [16, 120], "size": [182, 20], "text": "#STR_OZ_PDA_VPP_F_MAP_HOME", "font": "small", "color": "$vppText"}},
+        {"label": {"name": "TunD_MapHome", "at": [16, 140], "size": [182, 18], "text": "", "font": "small", "color": "$vppMuted"}},
+        {"field": {"name": "Tun_MapHome", "at": [206, 124], "size": [104, 32], "color": "$vppText"}}
+      ]}},
+      {"panel": {"name": "PdaTunG_Hud", "at": [708, 264], "size": [326, 172], "color": "$vppHead", "edge": true, "children": [
+        {"label": {"name": "PdaTunG_HudLbl", "at": [16, 6], "size": [294, 18], "text": "#STR_OZ_PDA_VPP_G_HUD", "font": "small", "color": "$vppMuted"}},
+        {"label": {"name": "TunL_ToastSeconds", "at": [16, 32], "size": [182, 20], "text": "#STR_OZ_PDA_VPP_F_TOAST", "font": "small", "color": "$vppText"}},
+        {"label": {"name": "TunD_ToastSeconds", "at": [16, 52], "size": [182, 18], "text": "", "font": "small", "color": "$vppMuted"}},
+        {"field": {"name": "Tun_ToastSeconds", "at": [206, 36], "size": [104, 32], "color": "$vppText"}},
+        {"label": {"name": "TunL_RouteAdvanceMeters", "at": [16, 76], "size": [182, 20], "text": "#STR_OZ_PDA_VPP_F_ROUTE", "font": "small", "color": "$vppText"}},
+        {"label": {"name": "TunD_RouteAdvanceMeters", "at": [16, 96], "size": [182, 18], "text": "", "font": "small", "color": "$vppMuted"}},
+        {"field": {"name": "Tun_RouteAdvanceMeters", "at": [206, 80], "size": [104, 32], "color": "$vppText"}},
+        {"label": {"name": "TunL_BeaconPushSeconds", "at": [16, 120], "size": [182, 20], "text": "#STR_OZ_PDA_VPP_F_BEACON", "font": "small", "color": "$vppText"}},
+        {"label": {"name": "TunD_BeaconPushSeconds", "at": [16, 140], "size": [182, 18], "text": "", "font": "small", "color": "$vppMuted"}},
+        {"field": {"name": "Tun_BeaconPushSeconds", "at": [206, 124], "size": [104, 32], "color": "$vppText"}}
+      ]}},
+      {"panel": {"name": "PdaTunFoot", "anchor": "bottom", "at": [0, 0], "size": [1060, 60], "color": "$vppHead", "note": "The form's bar: what is changed and not saved yet, the page's last line, discard and save (both ask on the window's confirm strip, which covers this bar while it asks).", "children": [
+        {"panel": {"name": "PdaTunFootRule", "at": [0, 0], "size": [1060, 1], "color": "$vppEdge"}},
+        {"label": {"name": "PdaTunDirty", "at": [24, 8], "size": [700, 22], "text": "#STR_OZ_PDA_VPP_NO_CHANGES", "font": "small", "color": "$vppMuted"}},
+        {"label": {"name": "PdaTunHint", "at": [24, 30], "size": [700, 22], "text": "", "font": "small", "color": "$vppMuted"}},
+        {"button": {"name": "BtnPdaTunDrop", "at": [160, 12], "size": [128, 36], "text": "#STR_OZ_VPP_CANCEL", "bg": "$vppRaised", "edge": "$vppEdge", "color": "$vppText", "font": "small", "anchor": "right"}},
+        {"button": {"name": "BtnPdaTunSave", "at": [24, 12], "size": [128, 36], "text": "#STR_OZ_PDA_VPP_SAVE", "bg": "$vppAccent", "edge": "$vppAccent", "color": "$vppScreen", "font": "small", "anchor": "right"}}
+      ]}}
+    ]}}
+  ]}}
+}

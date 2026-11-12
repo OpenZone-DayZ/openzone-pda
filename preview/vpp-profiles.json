@@ -1,0 +1,1 @@
+{"ops":[{"op":"show","nth":1,"name":"PdaProfPane"},{"op":"text","nth":1,"name":"PdaProfEdit","text":"{\n  \"Profiles\": [\n    {\"Id\": \"novice\", \"ClassNames\": [\"OZ_PDA_Novice\"], \"ModuleSlots\": 1}\n  ]\n}"},{"op":"text","nth":1,"name":"PdaProfHint","text":"Profiles.json прочитано"}]}

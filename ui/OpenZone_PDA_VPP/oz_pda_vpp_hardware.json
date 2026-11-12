@@ -1,0 +1,68 @@
+{
+  "layout": "oz_pda_vpp_hardware",
+  "note": "КПК › Обладнання: Hardware.json as a list and a card. Created by OZ_PdaVppPane.OnCreate and registered as the page pda.hardware of the module pda. Colours are the window's metal (the core's vpp* tokens). КПК › Обладнання (VPP rework 2026-11-12, design 5.3; artboard PdaHardware): Hardware.json -- the modules that go into the PDA's bays and the carriers of records -- as a list on the left and the picked entry's card on the right. A module of another mod is marked; saving makes it the admin's. Names the script reads: HwList, Hw*, BtnHw*, PdaHw* (PdaHwHint is the page's hint line).",
+  "root": {"frame": {"name": "PdaHwPane", "size": "$vpp.content", "hidden": true, "priority": 2, "note": "Hidden: ShowPane shows the open page and hides the rest. The shell moves the root into the content area and sizes it; 1060 x 680 is the content area of the default window.", "children": [
+    {"frame": {"name": "PdaHwRoot", "size": "fill", "note": "Proportional: follows the pane root when the shell resizes it.", "children": [
+      {"frame": {"name": "PdaHwHead", "at": [0, 0], "size": [1060, 60], "note": "The page head: title and one line on the left, the page's actions anchored right. OnWindowResized keeps it as wide as the page, so the actions follow the right edge.", "children": [
+        {"label": {"name": "PdaHwTitle", "at": [24, 9], "size": [640, 26], "text": "#STR_OZ_PDA_VPP_HW_TITLE", "font": "title", "color": "$vppText"}},
+        {"label": {"name": "PdaHwSub", "at": [24, 35], "size": [560, 18], "text": "#STR_OZ_PDA_VPP_HW_SUB", "font": "small", "color": "$vppMuted"}},
+        {"button": {"name": "BtnHwNewMod", "at": [212, 15], "size": [180, 30], "text": "#STR_OZ_PDA_VPP_HW_NEW_MOD", "bg": "$vppRaised", "edge": "$vppEdge", "color": "$vppText", "font": "small", "anchor": "right"}},
+        {"button": {"name": "BtnHwNewCar", "at": [24, 15], "size": [180, 30], "text": "#STR_OZ_PDA_VPP_HW_NEW_CAR", "bg": "$vppRaised", "edge": "$vppEdge", "color": "$vppText", "font": "small", "anchor": "right"}},
+        {"panel": {"name": "PdaHwHeadRule", "at": [0, 59], "size": [1060, 1], "color": "$vppEdge"}}
+      ]}},
+      {"panel": {"name": "PdaHwDivider", "at": [440, 60], "size": [1, 620], "color": "$vppEdge"}},
+      {"label": {"name": "PdaHwListHead", "at": [24, 76], "size": [392, 18], "text": "#STR_OZ_PDA_VPP_HW_LIST", "font": "small", "color": "$vppMuted"}},
+      {"listbox": {"name": "HwList", "at": [24, 98], "size": [392, 470], "font": "field", "color": "$vppText", "props": {"style": "NoScrollBar", "title visible": false, "highlight row": true, "lines": 16}, "note": "Modules, then carriers, each group under a head row: 'M' module, 'C' carrier, the class and a summary. Filled by AddItem; OnWindowResized gives it the page's height."}},
+      {"text": {"name": "PdaHwListNote", "at": [24, 580], "size": [392, 40], "text": "#STR_OZ_PDA_VPP_HW_NOTE", "font": "small", "color": "$vppMuted", "grow": false}},
+      {"frame": {"name": "PdaHwCard", "at": [441, 60], "size": [619, 620], "note": "The picked entry: a module or a carrier box, one at a time, and save and delete under it.", "children": [
+        {"label": {"name": "PdaHwEmpty", "at": [24, 18], "size": [571, 24], "text": "#STR_OZ_PDA_VPP_HW_EMPTY", "font": "header", "color": "$vppMuted"}},
+        {"label": {"name": "PdaHwCardTitle", "at": [24, 16], "size": [420, 28], "text": "", "font": "title", "color": "$vppText"}},
+        {"panel": {"name": "PdaHwCardBadge", "at": [452, 20], "size": [120, 22], "color": "$vppRaised", "children": [
+          {"label": {"name": "PdaHwCardBadgeText", "at": [0, 0], "size": [120, 22], "text": "", "font": "small", "color": "$vppMuted", "align": "center"}}
+        ]}},
+        {"label": {"name": "PdaHwOrigin", "at": [24, 46], "size": [571, 18], "text": "", "font": "small", "color": "$vppAlert"}},
+        {"panel": {"name": "PdaHwModBox", "at": [24, 70], "size": [571, 288], "color": "$vppHead", "edge": true, "hidden": true, "children": [
+          {"label": {"name": "PdaHwModLegend", "at": [16, 6], "size": [300, 18], "text": "#STR_OZ_PDA_VPP_HW_G_MODULE", "font": "small", "color": "$vppMuted"}},
+          {"label": {"name": "HwClassL", "at": [16, 30], "size": [170, 18], "text": "#STR_OZ_PDA_VPP_HW_F_CLASS", "font": "small", "color": "$vppMuted"}},
+          {"field": {"name": "HwClass", "at": [16, 52], "size": [170, 32], "color": "$vppText"}},
+          {"label": {"name": "HwNameL", "at": [200, 30], "size": [170, 18], "text": "#STR_OZ_PDA_VPP_HW_F_NAME", "font": "small", "color": "$vppMuted"}},
+          {"field": {"name": "HwName", "at": [200, 52], "size": [170, 32], "color": "$vppText"}},
+          {"label": {"name": "HwNameGame", "at": [200, 86], "size": [170, 18], "text": "", "font": "small", "color": "$vppMuted"}},
+          {"label": {"name": "HwKindL", "at": [384, 30], "size": [170, 18], "text": "#STR_OZ_PDA_VPP_HW_F_KIND", "font": "small", "color": "$vppMuted"}},
+          {"field": {"name": "HwKind", "at": [384, 52], "size": [134, 32], "color": "$vppText"}},
+          {"label": {"name": "HwKindH", "at": [384, 86], "size": [170, 18], "text": "#STR_OZ_PDA_VPP_HW_H_KIND", "font": "small", "color": "$vppMuted"}},
+          {"button": {"name": "BtnHwKind", "at": [522, 52], "size": [32, 32], "text": ">", "bg": "$vppRaised", "edge": "$vppEdge", "color": "$vppText", "font": "small", "note": "Steps the kind through gps, spy and decryptor; a kind of another mod is typed in the box."}},
+          {"label": {"name": "HwRangeL", "at": [16, 116], "size": [170, 18], "text": "#STR_OZ_PDA_VPP_HW_F_RANGE", "font": "small", "color": "$vppMuted"}},
+          {"field": {"name": "HwRange", "at": [16, 138], "size": [170, 32], "color": "$vppText"}},
+          {"label": {"name": "HwRangeH", "at": [16, 172], "size": [170, 18], "text": "#STR_OZ_PDA_VPP_HW_H_RANGE", "font": "small", "color": "$vppMuted"}},
+          {"label": {"name": "HwPowerL", "at": [200, 116], "size": [170, 18], "text": "#STR_OZ_PDA_VPP_HW_F_POWER", "font": "small", "color": "$vppMuted"}},
+          {"field": {"name": "HwPower", "at": [200, 138], "size": [170, 32], "color": "$vppText"}},
+          {"label": {"name": "HwPowerH", "at": [200, 172], "size": [170, 18], "text": "#STR_OZ_PDA_VPP_HW_H_POWER", "font": "small", "color": "$vppMuted"}},
+          {"label": {"name": "HwSpyL", "at": [384, 116], "size": [170, 18], "text": "#STR_OZ_PDA_VPP_HW_F_SPY", "font": "small", "color": "$vppMuted"}},
+          {"field": {"name": "HwSpy", "at": [384, 138], "size": [170, 32], "color": "$vppText"}},
+          {"label": {"name": "HwSpyH", "at": [384, 172], "size": [170, 18], "text": "#STR_OZ_PDA_VPP_HW_H_SPY", "font": "small", "color": "$vppMuted"}},
+          {"label": {"name": "HwPagesL", "at": [16, 202], "size": [538, 18], "text": "#STR_OZ_PDA_VPP_HW_F_PAGES", "font": "small", "color": "$vppMuted"}},
+          {"field": {"name": "HwPages", "at": [16, 224], "size": [538, 32], "color": "$vppText"}},
+          {"label": {"name": "HwPagesH", "at": [16, 258], "size": [538, 18], "text": "#STR_OZ_PDA_VPP_HW_H_PAGES", "font": "small", "color": "$vppMuted"}}
+        ]}},
+        {"panel": {"name": "PdaHwCarBox", "at": [24, 70], "size": [571, 202], "color": "$vppHead", "edge": true, "hidden": true, "children": [
+          {"label": {"name": "PdaHwCarLegend", "at": [16, 6], "size": [300, 18], "text": "#STR_OZ_PDA_VPP_HW_G_CARRIER", "font": "small", "color": "$vppMuted"}},
+          {"label": {"name": "HwCarClassL", "at": [16, 30], "size": [170, 18], "text": "#STR_OZ_PDA_VPP_HW_F_CLASS", "font": "small", "color": "$vppMuted"}},
+          {"field": {"name": "HwCarClass", "at": [16, 52], "size": [170, 32], "color": "$vppText"}},
+          {"label": {"name": "HwCarNameL", "at": [200, 30], "size": [170, 18], "text": "#STR_OZ_PDA_VPP_HW_F_NAME", "font": "small", "color": "$vppMuted"}},
+          {"field": {"name": "HwCarName", "at": [200, 52], "size": [170, 32], "color": "$vppText"}},
+          {"label": {"name": "HwCarNameGame", "at": [200, 86], "size": [170, 18], "text": "", "font": "small", "color": "$vppMuted"}},
+          {"label": {"name": "HwWrL", "at": [384, 30], "size": [170, 18], "text": "#STR_OZ_PDA_VPP_HW_F_WRITES", "font": "small", "color": "$vppMuted"}},
+          {"button": {"name": "BtnHwWrYes", "at": [384, 52], "size": [84, 32], "text": "#STR_OZ_PDA_VPP_YES_WORD", "bg": "$vppRaised", "edge": "$vppEdge", "color": "$vppText", "font": "small", "note": "Writes: yes. With BtnHwWrNo a pair; the script paints the chosen one."}},
+          {"button": {"name": "BtnHwWrNo", "at": [470, 52], "size": [84, 32], "text": "#STR_OZ_PDA_VPP_NO_WORD", "bg": "$vppRaised", "edge": "$vppEdge", "color": "$vppText", "font": "small"}},
+          {"label": {"name": "HwMarksL", "at": [16, 116], "size": [170, 18], "text": "#STR_OZ_PDA_VPP_HW_F_RECORDS", "font": "small", "color": "$vppMuted"}},
+          {"field": {"name": "HwMarks", "at": [16, 138], "size": [170, 32], "color": "$vppText"}},
+          {"label": {"name": "HwMarksH", "at": [16, 172], "size": [170, 18], "text": "#STR_OZ_PDA_VPP_HW_H_RECORDS", "font": "small", "color": "$vppMuted"}}
+        ]}},
+        {"button": {"name": "BtnHwSave", "at": [24, 372], "size": [140, 36], "text": "#STR_OZ_PDA_VPP_SAVE", "bg": "$vppAccent", "edge": "$vppAccent", "color": "$vppScreen", "font": "small", "hidden": true, "note": "Moved under the open box by the script (PdaHwPaintCard)."}},
+        {"button": {"name": "BtnHwDel", "at": [172, 372], "size": [140, 36], "text": "#STR_OZ_PDA_VPP_DELETE", "bg": "$vppPanel", "edge": "$vppBad", "color": "$vppBad", "font": "small", "hidden": true}},
+        {"label": {"name": "PdaHwHint", "at": [24, 416], "size": [571, 22], "text": "", "font": "small", "color": "$vppMuted"}}
+      ]}}
+    ]}}
+  ]}}
+}
