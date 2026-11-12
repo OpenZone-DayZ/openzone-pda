@@ -14,7 +14,7 @@
         {"panel": {"name": "PdaProfFootRule", "at": [0, 0], "size": [1060, 1], "color": "$vppEdge"}},
         {"label": {"name": "PdaProfHint", "at": [24, 0], "size": [700, 60], "text": "", "font": "small", "color": "$vppMuted"}},
         {"button": {"name": "BtnPdaProfReload", "at": [182, 12], "size": [150, 36], "text": "#STR_OZ_VPP_RELOAD", "bg": "$vppRaised", "edge": "$vppEdge", "color": "$vppText", "font": "small", "anchor": "right"}},
-        {"button": {"name": "BtnPdaProfApply", "at": [24, 12], "size": [150, 36], "text": "#STR_OZ_VPP_APPLY", "bg": "$vppAccent", "edge": "$vppAccent", "color": "$vppScreen", "font": "small", "anchor": "right", "note": "Asks on the window's confirm strip; off while the editor holds less than the whole file."}}
+        {"button": {"name": "BtnPdaProfApply", "at": [24, 12], "size": [150, 36], "text": "#STR_OZ_VPP_APPLY", "bg": "$vppAccent", "edge": "$vppAccent", "color": "$vppText", "font": "small", "anchor": "right", "note": "Asks on the window's confirm strip; off while the editor holds less than the whole file."}}
       ]}}
     ]}}
   ]}}

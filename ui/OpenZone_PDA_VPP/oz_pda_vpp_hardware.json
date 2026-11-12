@@ -59,7 +59,7 @@
           {"field": {"name": "HwMarks", "at": [16, 138], "size": [170, 32], "color": "$vppText"}},
           {"label": {"name": "HwMarksH", "at": [16, 172], "size": [170, 18], "text": "#STR_OZ_PDA_VPP_HW_H_RECORDS", "font": "small", "color": "$vppMuted"}}
         ]}},
-        {"button": {"name": "BtnHwSave", "at": [24, 372], "size": [140, 36], "text": "#STR_OZ_PDA_VPP_SAVE", "bg": "$vppAccent", "edge": "$vppAccent", "color": "$vppScreen", "font": "small", "hidden": true, "note": "Moved under the open box by the script (PdaHwPaintCard)."}},
+        {"button": {"name": "BtnHwSave", "at": [24, 372], "size": [140, 36], "text": "#STR_OZ_PDA_VPP_SAVE", "bg": "$vppAccent", "edge": "$vppAccent", "color": "$vppText", "font": "small", "hidden": true, "note": "Moved under the open box by the script (PdaHwPaintCard)."}},
         {"button": {"name": "BtnHwDel", "at": [172, 372], "size": [140, 36], "text": "#STR_OZ_PDA_VPP_DELETE", "bg": "$vppPanel", "edge": "$vppBad", "color": "$vppBad", "font": "small", "hidden": true}},
         {"label": {"name": "PdaHwHint", "at": [24, 416], "size": [571, 22], "text": "", "font": "small", "color": "$vppMuted"}}
       ]}}

@@ -89,7 +89,7 @@
         {"label": {"name": "PdaTunDirty", "at": [24, 8], "size": [700, 22], "text": "#STR_OZ_PDA_VPP_NO_CHANGES", "font": "small", "color": "$vppMuted"}},
         {"label": {"name": "PdaTunHint", "at": [24, 30], "size": [700, 22], "text": "", "font": "small", "color": "$vppMuted"}},
         {"button": {"name": "BtnPdaTunDrop", "at": [160, 12], "size": [128, 36], "text": "#STR_OZ_VPP_CANCEL", "bg": "$vppRaised", "edge": "$vppEdge", "color": "$vppText", "font": "small", "anchor": "right"}},
-        {"button": {"name": "BtnPdaTunSave", "at": [24, 12], "size": [128, 36], "text": "#STR_OZ_PDA_VPP_SAVE", "bg": "$vppAccent", "edge": "$vppAccent", "color": "$vppScreen", "font": "small", "anchor": "right"}}
+        {"button": {"name": "BtnPdaTunSave", "at": [24, 12], "size": [128, 36], "text": "#STR_OZ_PDA_VPP_SAVE", "bg": "$vppAccent", "edge": "$vppAccent", "color": "$vppText", "font": "small", "anchor": "right"}}
       ]}}
     ]}}
   ]}}

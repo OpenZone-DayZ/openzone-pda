@@ -12,17 +12,17 @@
 class OZ_PdaVppMetal
 {
     // --- grounds
-    static const int PANEL  = ARGB(255,  12,  12,  12);   // vppPanel   0.047
-    static const int RAISED = ARGB(255,  30,  30,  29);   // vppRaised  0.118 0.118 0.114
-    static const int EDGE   = ARGB(255,  60,  60,  58);   // vppEdge    0.235 0.235 0.227
+    static const int PANEL  = 0xFF0C0C0C;   // vppPanel   0.047
+    static const int RAISED = 0xFF1E1E1D;   // vppRaised  0.118 0.118 0.114
+    static const int EDGE   = 0xFF3C3C3A;   // vppEdge    0.235 0.235 0.227
 
     // --- text
-    static const int TEXT   = ARGB(255, 224, 223, 218);   // vppText    0.88  0.875 0.855
-    static const int MUTED  = ARGB(255, 160, 159, 153);   // vppMuted   0.627 0.624 0.6
+    static const int TEXT   = 0xFFE0DFDA;   // vppText    0.88  0.875 0.855
+    static const int MUTED  = 0xFFA09F99;   // vppMuted   0.627 0.624 0.6
 
     // --- states
-    static const int ACCENT = ARGB(255, 232, 120,  43);   // vppAccent  0.91  0.47  0.17
-    static const int ALERT  = ARGB(255, 245, 199,  64);   // vppAlert   0.96  0.78  0.25
+    static const int ACCENT = 0xFFE8782B;   // vppAccent  0.91  0.47  0.17
+    static const int ALERT  = 0xFFF5C740;   // vppAlert   0.96  0.78  0.25
 }
 
 #endif
