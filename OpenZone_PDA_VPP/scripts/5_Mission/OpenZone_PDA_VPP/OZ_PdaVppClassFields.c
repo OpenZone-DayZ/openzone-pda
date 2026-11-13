@@ -11,9 +11,10 @@ modded class OZ_VppAdminMenu
     override void ClassFields(OZ_ClassPick pick)
     {
         super.ClassFields(pick);
-        // A device the PDA counts as hardware, and a car that carries one.
+        // A module that goes into a PDA's bay, and a carrier of records (a floppy, a chip):
+        // both are things a player carries.
         pick.Bind("HwClass", OZ_ClassIndex.ITEM);
-        pick.Bind("HwCarClass", OZ_ClassIndex.VEHICLE);
+        pick.Bind("HwCarClass", OZ_ClassIndex.ITEM);
     }
 }
 
