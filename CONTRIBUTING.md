@@ -34,11 +34,12 @@ cannot be accepted. **GPL code in particular cannot go in.**
   files are generated, never hand-edited** -- with three named exceptions:
   `oz_pda_hud.layout`, `oz_pda_hud_edit.layout` and `oz_pda_hud_proxy.layout`
   (proportional layouts, hand-written on purpose, palette kept by hand). Every
-  other layout comes from its mod's `ui/<mod>/*.json` descriptions; regenerate
+  other layout of the PDA itself comes from `ui/OpenZone_PDA/*.json`; regenerate
   with the MCP's `layout_build` or `python -m dayz_mcp.layoutgen <root>` from
-  the generator repo, both with no mod argument -- two mods carry descriptions
-  now. Run the gallery at two sizes and in two languages before calling a UI
-  change done.
+  the generator repo. The VPP glue's pages are converted from the mockup's
+  HTML boards by the MCP's `layout_convert` (`ui/css2layout.json`; edit the
+  board and convert again). Look at a UI change in both languages before
+  calling it done.
 - **`ui/tokens.json` lives in `openzone-core`, not in this repository.** This
   repo reads it through its own `[build] tokens`, and so does
   `openzone-factions` to lay out the faction page that shares the contacts tab
