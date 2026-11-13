@@ -19,3 +19,10 @@ desktop.ini
 
 # машинний профіль MCP: шляхи цієї машини, не комітиться
 dayz-mcp.local.toml
+
+# css2layout: previews and measurements, never packed or committed
+_demo_*.layout
+ui/css2layout/*.measure.json
+ui/css2layout/icons.json
+ui/css2layout/icons.png
+ui/css2layout/chrome_profile*/

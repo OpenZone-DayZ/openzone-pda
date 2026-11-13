@@ -1,20 +1,28 @@
 // Модуль «КПК» в адмінському вікні OpenZone (VPP rework 2026-11-12, design 5.3): три
 // сторінки модуля "pda" на рейці вікна -- Налаштування (Tuning.json формою), Обладнання
 // (Hardware.json: модулі й носії) і Профілі (сирий Profiles.json, доки його не візьме
-// Ядро › Файли конфігів). Кожна сторінка -- своя розмітка з опису в ui/OpenZone_PDA_VPP/,
-// зареєстрована RegisterPage; ядро про КПК не знає, КПК докладає свої сторінки сам цим
+// Ядро › Файли конфігів). Ядро про КПК не знає, КПК докладає свої сторінки сам цим
 // modded-шаром.
+//
+// The three layouts are converted from the mockup's boards (css2layout, 2026-11-13;
+// docs/specs/2026-11-13-openzone-vpp-page-guide.md): PdaTuning.dc.html, PdaHardware.dc.html
+// and PdaProfiles.html under docs/specs/2026-11-12-openzone-vpp-mockup/project. They carry
+// their own colours and follow the window by themselves; what this file names is in the
+// reports ui/css2layout/oz_pda_vpp_*.txt. The list of modules and carriers is rows made
+// from two templates (a group's caption, an entry).
 //
 // Усе, що йде на сервер або викидає роботу адміна, питає на смузі підтвердження вікна
 // (design 3.4): зберегти налаштування чи запис, відкинути незбережені налаштування,
 // видалити запис, застосувати сирі профілі. «Так» вертається в OnConfirmed дією "pda:".
+// What a page says goes to the window's journal and its status bar (Hint).
 //
 // Гарди: NO_GUI -- сервер компілює Mission без UI; AVPPAdminTools і OpenZone_VPP --
 // імена класів CfgMods (їх авто-дефайнить рушій).
 //
 // Члени цього шару починаються з Pda (поля -- m_Pda): той самий клас модифікує кожна
 // склейка, і ім'я, яке мають двоє, не компілюється. Імена віджетів теж унікальні на все
-// вікно: шукаються від M_SUB_WIDGET.
+// вікно. Fields are declared bare and set in OnCreate (dayz-modding enforce-script.md,
+// field initialisers).
 
 #ifdef AVPPAdminTools
 #ifdef OpenZone_VPP
@@ -25,6 +33,42 @@ modded class OZ_VppAdminMenu
     static const string PDA_PAGE_TUN  = "pda.tuning";
     static const string PDA_PAGE_HW   = "pda.hardware";
     static const string PDA_PAGE_PROF = "pda.profiles";
+
+    // Numbers of the converted layouts, in layout units. The engine does not read the
+    // boards, so they live twice: convert a page again, check these against its layout.
+    // BAR: the bar at the bottom of Налаштування and Профілі (the confirm strip stands
+    // over it). HW_*: the card of Обладнання inside PdaHwCard -- where a box stands, how
+    // tall the module's and the carrier's are, the room under a box, where the title
+    // starts. LEG_*: a caption over a box's border -- its room left and right of the
+    // words, the height of its ground and of its line. Rows of the list: 407 wide, a
+    // group's caption 24 high, an entry 52.
+    static const float PDA_BAR_H      = 61;
+    static const float PDA_HW_X       = 24;
+    static const float PDA_HW_BOX_Y   = 57;
+    static const float PDA_HW_MOD_H   = 306;
+    static const float PDA_HW_CAR_H   = 204;
+    static const float PDA_HW_GAP     = 14;
+    static const float PDA_HW_TITLE_Y = 16;
+    static const float PDA_HW_TITLE_H = 27;
+    static const float PDA_HW_BADGE_Y = 21;
+    static const float PDA_HW_BADGE_H = 18;
+    static const float PDA_LEG_PAD    = 6;
+    static const float PDA_LEG_BAR_H  = 8;
+    static const float PDA_LEG_H      = 15;
+    static const float PDA_ROW_W      = 407;
+    static const float PDA_HEAD_H     = 24;
+    static const float PDA_ROW_H      = 52;
+
+    // A group of the list shows this many entries; its caption says when there are more.
+    static const int PDA_HW_ROWS_MAX = 150;
+
+    // The three panes, as created.
+    private Widget m_PdaTunPane;
+    private Widget m_PdaHwPane;
+    private Widget m_PdaProfPane;
+
+    // What is fitted to its words waits for the page to be on screen: frames left to try.
+    private int m_PdaFitTries;
 
     // ------------------------------------------------- Налаштування
     // The file as the server last sent it: the boxes are compared with it.
@@ -37,30 +81,32 @@ modded class OZ_VppAdminMenu
     private ref array<string> m_PdaTunGroups;
 
     // The script writes the boxes: an OnChange that comes of it is not an edit.
-    private bool m_PdaFill = false;
+    private bool m_PdaFill;
 
     // ------------------------------------------------- Обладнання
     private ref OZ_PdaHardwareConfig m_PdaHwCfg;
-    // A row of HwList -> what it is ("head", "module", "carrier") and its index.
-    private ref array<string> m_PdaHwRowKind;
-    private ref array<int>    m_PdaHwRowIdx;
+    // The list: the captions of the two groups and the entries. An entry's key is
+    // "<kind>:<index>", kind "module" or "carrier".
+    private ref OZ_VppFlexRows m_PdaHwHeads;
+    private ref OZ_VppFlexRows m_PdaHwRows;
     // The entry on the card: its kind, its index, its class as the file has it, and
     // whether it is new (not in the file yet).
-    private string m_PdaHwKind = "";
-    private int    m_PdaHwIdx = -1;
-    private string m_PdaHwClass = "";
-    private bool   m_PdaHwNew = false;
-    private bool   m_PdaHwWritable = true;
-    // Rebuilding HwList selects a row; the OnItemSelected that comes of it is not a pick.
-    private bool   m_PdaRepaint = false;
+    private string m_PdaHwKind;
+    private int    m_PdaHwIdx;
+    private string m_PdaHwClass;
+    private bool   m_PdaHwNew;
+    private bool   m_PdaHwWritable;
 
     // ------------------------------------------------- Профілі
     // The editor holds less than the whole file: applying would cut it.
-    private bool m_PdaProfCut = false;
+    private bool m_PdaProfCut;
     // The page asked for the file: the answer goes into the editor. Ядро › Файли
     // конфігів asks for the same file, and its answer leaves this editor alone.
-    private bool m_PdaProfWaiting = false;
-    private bool m_PdaProfAsked = false;
+    private bool m_PdaProfWaiting;
+    private bool m_PdaProfAsked;
+    // The file's size and what the editor kept of it, in bytes; -1: no file came yet.
+    private int  m_PdaProfBytes;
+    private int  m_PdaProfKept;
 
     override void OnCreate(Widget RootW)
     {
@@ -68,8 +114,19 @@ modded class OZ_VppAdminMenu
         if (!M_SUB_WIDGET)
             return;
 
-        m_PdaHwRowKind = new array<string>();
-        m_PdaHwRowIdx  = new array<int>();
+        m_PdaFitTries = 0;
+        m_PdaFill = false;
+        m_PdaHwKind = "";
+        m_PdaHwIdx = -1;
+        m_PdaHwClass = "";
+        m_PdaHwNew = false;
+        m_PdaHwWritable = true;
+        m_PdaProfCut = false;
+        m_PdaProfWaiting = false;
+        m_PdaProfAsked = false;
+        m_PdaProfBytes = -1;
+        m_PdaProfKept = 0;
+
         m_PdaTunKeys   = new array<string>();
         m_PdaTunLabels = new array<string>();
         m_PdaTunGroups = new array<string>();
@@ -78,25 +135,45 @@ modded class OZ_VppAdminMenu
         m_PdaTunDef = new OZ_PdaTuning();
         m_PdaTunDef.LoadDefaults();
 
-        PdaAddPage(PDA_PAGE_TUN,  "#STR_OZ_PDA_VPP_PAGE_TUN",  "oz_pda_vpp_tuning",   "PdaTunHint");
-        PdaAddPage(PDA_PAGE_HW,   "#STR_OZ_PDA_VPP_PAGE_HW",   "oz_pda_vpp_hardware", "PdaHwHint");
-        PdaAddPage(PDA_PAGE_PROF, "#STR_OZ_PDA_VPP_PAGE_PROF", "oz_pda_vpp_profiles", "PdaProfHint");
+        m_PdaTunPane  = PdaAddPage(PDA_PAGE_TUN,  "#STR_OZ_PDA_VPP_PAGE_TUN",  "oz_pda_vpp_tuning",   "PdaTunPane");
+        m_PdaHwPane   = PdaAddPage(PDA_PAGE_HW,   "#STR_OZ_PDA_VPP_PAGE_HW",   "oz_pda_vpp_hardware", "PdaHwPane");
+        m_PdaProfPane = PdaAddPage(PDA_PAGE_PROF, "#STR_OZ_PDA_VPP_PAGE_PROF", "oz_pda_vpp_profiles", "PdaProfPane");
 
-        // The defaults under the boxes and the empty card, before any file arrives.
+        // The list of Обладнання: two row templates into one spacer, in the order made.
+        if (m_PdaHwPane)
+        {
+            Widget hwHost = m_PdaHwPane.FindAnyWidget("PdaHwListRows");
+            if (hwHost)
+            {
+                m_PdaHwHeads = new OZ_VppFlexRows(m_Flex, hwHost, "OpenZone_PDA_VPP/gui/layouts/oz_pda_vpp_hw_head.layout", "OZ_PdaVppHwHead", PDA_ROW_W, PDA_HEAD_H);
+                m_PdaHwRows  = new OZ_VppFlexRows(m_Flex, hwHost, "OpenZone_PDA_VPP/gui/layouts/oz_pda_vpp_hw_row.layout", "OZ_PdaVppHwRow", PDA_ROW_W, PDA_ROW_H);
+            }
+            else
+                OZ_Log.Error("pda vpp page: the hardware list has no PdaHwListRows");
+        }
+
+        // The captions and defaults of the form, the empty card and the editor's line,
+        // before any file arrives.
+        PdaTunCaptions();
         PdaTunPaint();
         PdaHwPaintCard();
+        PdaProfPaintState();
     }
 
-    private void PdaAddPage(string id, string label, string layout, string hint)
+    // A page of the module: its layout under the window's root, registered on the rail.
+    // No hint label of its own: a page's lines go to the journal, and the status bar
+    // shows the newest.
+    private Widget PdaAddPage(string id, string label, string layout, string rootName)
     {
         string path = "OpenZone_PDA_VPP/gui/layouts/" + layout + ".layout";
-        Widget pane = GetGame().GetWorkspace().CreateWidgets(path, M_SUB_WIDGET);
+        Widget pane = OZ_VppFlex.Create(path, M_SUB_WIDGET, rootName);
         if (!pane)
         {
             OZ_Log.Error("pda vpp page: layout failed to load: " + path);
-            return;
+            return null;
         }
-        RegisterPage("pda", "#STR_OZ_PDA_VPP_MOD", id, label, pane, hint);
+        RegisterPage("pda", "#STR_OZ_PDA_VPP_MOD", id, label, pane, "");
+        return pane;
     }
 
     // A page of the module is shown: its file, unless the page holds the admin's work.
@@ -106,6 +183,7 @@ modded class OZ_VppAdminMenu
 
         if (id == PDA_PAGE_TUN)
         {
+            m_PdaFitTries = 30;
             array<int> changed = new array<int>();
             PdaTunChanged(changed);
             if (changed.Count() == 0)
@@ -115,6 +193,8 @@ modded class OZ_VppAdminMenu
 
         if (id == PDA_PAGE_HW)
         {
+            m_PdaFitTries = 30;
+            PdaHwPlace();
             // The answer keeps a card with unsaved edits (PdaOnHardwareText).
             AskCfg("Hardware");
             return;
@@ -184,6 +264,77 @@ modded class OZ_VppAdminMenu
         }
         if (action == "pda:prof")
             PdaProfApplyNow();
+    }
+
+    // Налаштування and Профілі have a bar of their own at the bottom: the confirm strip
+    // stands over it, not on it.
+    override float ConfirmLift()
+    {
+        if (m_Shown == PDA_PAGE_TUN || m_Shown == PDA_PAGE_PROF)
+            return PDA_BAR_H;
+        return super.ConfirmLift();
+    }
+
+    // Every frame while the window is open: what waits to be fitted to its words.
+    override void Tick()
+    {
+        super.Tick();
+        if (m_PdaFitTries > 0)
+            PdaFitTick();
+    }
+
+    // The captions over the boxes' borders and the card's title are as wide as their
+    // words in the game's language. A text measures only once it is on screen, so the
+    // open page is tried for a few frames after it is shown.
+    private void PdaFitTick()
+    {
+        m_PdaFitTries = m_PdaFitTries - 1;
+
+        bool done = true;
+        if (m_Shown == PDA_PAGE_TUN)
+        {
+            for (int g = 0; g < 6; g++)
+            {
+                if (!PdaFitLegend(m_PdaTunPane, "TunLeg" + g.ToString()))
+                    done = false;
+            }
+        }
+        else if (m_Shown == PDA_PAGE_HW)
+        {
+            if (!PdaFitLegend(m_PdaHwPane, "PdaHwModLeg"))
+                done = false;
+            if (!PdaFitLegend(m_PdaHwPane, "PdaHwCarLeg"))
+                done = false;
+            if (!PdaHwFlowTitle())
+                done = false;
+        }
+
+        if (done)
+            m_PdaFitTries = 0;
+    }
+
+    // One caption over a border: its ground (<name>Bar hides the border under the words)
+    // and its line (<name>Text) as wide as the words. False: the words do not measure
+    // yet. A caption that is hidden with its box is left for the time it shows.
+    private bool PdaFitLegend(Widget pane, string name)
+    {
+        if (!pane)
+            return true;
+        Widget bar = pane.FindAnyWidget(name + "Bar");
+        TextWidget t = TextWidget.Cast(pane.FindAnyWidget(name + "Text"));
+        if (!bar || !t)
+            return true;
+        if (!t.IsVisibleHierarchy())
+            return true;
+
+        int tw = OZ_VppFlex.TextWidth(t);
+        if (tw <= 0)
+            return false;
+
+        float s = UnitScale();
+        bar.SetSize(tw + 2 * PDA_LEG_PAD * s, PDA_LEG_BAR_H * s);
+        t.SetSize(tw + 2, PDA_LEG_H * s);
+        return true;
     }
 
     // ================================================= Налаштування
@@ -405,63 +556,95 @@ modded class OZ_VppAdminMenu
         return item;
     }
 
-    private string PdaTunList(array<int> idx, bool withValues)
+    // The named fields, one after another; `most` > 0 names that many and counts the rest.
+    private string PdaTunList(array<int> idx, bool withValues, int most)
     {
         string list = "";
-        for (int i = 0; i < idx.Count(); i++)
+        int named = idx.Count();
+        if (most > 0 && named > most)
+            named = most;
+        for (int i = 0; i < named; i++)
         {
             string item = PdaTunItem(idx[i], withValues);
             if (list != "")
                 list = list + "; ";
             list = list + item;
         }
+        int rest = idx.Count() - named;
+        if (rest > 0)
+            list = list + "; +" + rest.ToString();
         return list;
     }
 
-    // Under each box its default, in the alert colour with "changed" while the box
-    // differs from the file; the bar names what is not saved yet.
+    // The captions of the fields: the layout leaves them to the script, because three
+    // fields share their Ukrainian caption and differ in English.
+    private void PdaTunCaptions()
+    {
+        if (!m_PdaTunPane)
+            return;
+        int cInk = ARGB(255, 224, 223, 218);
+        for (int i = 0; i < m_PdaTunKeys.Count(); i++)
+            PdaPaneText(m_PdaTunPane, "TunL_" + m_PdaTunKeys[i], m_PdaTunLabels[i], cInk);
+    }
+
+    // Under each caption the field's default, in the alert colour with "changed" while
+    // the box differs from the file, and the box's frame with it; the bar names what is
+    // not saved yet.
     private void PdaTunPaint()
     {
-        if (!M_SUB_WIDGET || !m_PdaTunKeys)
+        if (!m_PdaTunPane || !m_PdaTunKeys)
             return;
+
+        int cMuted = ARGB(255, 160, 159, 153);
+        int cAlert = ARGB(255, 245, 199, 64);
+        int cEdge = ARGB(255, 60, 60, 58);
 
         string defWord = Widget.TranslateString("#STR_OZ_PDA_VPP_DEFAULT");
         string changedWord = Widget.TranslateString("#STR_OZ_PDA_VPP_CHANGED");
         string homeDef = Widget.TranslateString("#STR_OZ_PDA_VPP_DEF_HOME");
+        string dayWord = Widget.TranslateString("#STR_OZ_PDA_VPP_DEF_DAY");
         array<int> changed = new array<int>();
 
+        string key;
+        string line;
+        bool dirty;
+        int ink;
+        int edge;
         for (int i = 0; i < m_PdaTunKeys.Count(); i++)
         {
-            string key = m_PdaTunKeys[i];
-            bool dirty = false;
+            key = m_PdaTunKeys[i];
+            dirty = false;
             if (m_PdaTun)
                 dirty = PdaTunFieldChanged(i);
 
-            string line = defWord + " " + PdaTunText(m_PdaTunDef, key);
+            line = defWord + " " + PdaTunText(m_PdaTunDef, key);
             if (key == "MapHome")
                 line = homeDef;
+            // A day in seconds reads better with the word beside it.
+            if (key == "GroupInviteTtlSeconds" && m_PdaTunDef.GroupInviteTtlSeconds == 86400)
+                line = line + " — " + dayWord;
 
-            int ink = OZ_PdaVppMetal.MUTED;
-            int edge = OZ_PdaVppMetal.EDGE;
+            ink = cMuted;
+            edge = cEdge;
             if (dirty)
             {
-                line = line + ", " + changedWord;
-                ink = OZ_PdaVppMetal.ALERT;
-                edge = OZ_PdaVppMetal.ALERT;
+                line = line + " · " + changedWord;
+                ink = cAlert;
+                edge = cAlert;
                 changed.Insert(i);
             }
-            PdaText("TunD_" + key, line, ink);
-            PdaColor("Tun_" + key + "Frame", edge);
+            PdaPaneText(m_PdaTunPane, "TunD_" + key, line, ink);
+            OZ_VppFlex.Paint(m_PdaTunPane, "TunBox_" + key + "Edge", edge);
         }
 
         if (changed.Count() == 0)
         {
-            PdaText("PdaTunDirty", "#STR_OZ_PDA_VPP_NO_CHANGES", OZ_PdaVppMetal.MUTED);
+            PdaPaneText(m_PdaTunPane, "PdaTunDirty", "#STR_OZ_PDA_VPP_NO_CHANGES", cMuted);
             return;
         }
         string unsaved = Widget.TranslateString("#STR_OZ_PDA_VPP_UNSAVED");
-        string list = PdaTunList(changed, false);
-        PdaText("PdaTunDirty", unsaved + " " + list, OZ_PdaVppMetal.ALERT);
+        string list = PdaTunList(changed, false, 4);
+        PdaPaneText(m_PdaTunPane, "PdaTunDirty", unsaved + " " + list, cAlert);
     }
 
     private void PdaTunAskSave()
@@ -496,7 +679,7 @@ modded class OZ_VppAdminMenu
         }
 
         string ask = Widget.TranslateString("#STR_OZ_PDA_VPP_ASK_TUN");
-        string list = PdaTunList(changed, true);
+        string list = PdaTunList(changed, true, 0);
         Confirm(ask + " " + list, "#STR_OZ_PDA_VPP_YES_SAVE", "pda:tun");
     }
 
@@ -510,7 +693,7 @@ modded class OZ_VppAdminMenu
             return;
         }
         string ask = Widget.TranslateString("#STR_OZ_PDA_VPP_ASK_TUN_DROP");
-        string list = PdaTunList(changed, true);
+        string list = PdaTunList(changed, true, 0);
         Confirm(ask + " " + list, "#STR_OZ_PDA_VPP_YES_DROP", "pda:tundrop");
     }
 
@@ -595,56 +778,129 @@ modded class OZ_VppAdminMenu
         PdaHwRefind(keep);
     }
 
+    // The list: the modules under their caption, then the carriers under theirs. An
+    // entry shows its class, the name the game makes of it and a summary.
     private void PdaHwRebuildList()
     {
-        TextListboxWidget lb = TextListboxWidget.Cast(M_SUB_WIDGET.FindAnyWidget("HwList"));
-        if (!lb || !m_PdaHwCfg)
+        if (!m_PdaHwHeads || !m_PdaHwRows || !m_PdaHwCfg)
             return;
 
-        m_PdaRepaint = true;
-        lb.ClearItems();
-        m_PdaHwRowKind.Clear();
-        m_PdaHwRowIdx.Clear();
+        m_PdaHwHeads.Clear();
+        m_PdaHwRows.Clear();
 
-        string modWord = Widget.TranslateString("#STR_OZ_PDA_VPP_HW_MODULES");
-        string modHead = modWord + ": " + m_PdaHwCfg.Modules.Count().ToString();
-        int modRow = lb.AddItem(modHead, NULL, 0);
-        lb.SetItemColor(modRow, 0, OZ_PdaVppMetal.MUTED);
-        m_PdaHwRowKind.Insert("head");
-        m_PdaHwRowIdx.Insert(-1);
+        string modWord = Widget.TranslateString("#STR_OZ_PDA_VPP_HW_HEAD_MOD");
+        string carWord = Widget.TranslateString("#STR_OZ_PDA_VPP_HW_HEAD_CAR");
+        Widget row;
+        // Every translated piece goes into a local before it meets another (two
+        // translations in one expression lose one: dayz-modding mod-structure.md).
+        string shownName;
+        string sum;
 
-        for (int i = 0; i < m_PdaHwCfg.Modules.Count(); i++)
+        int mods = m_PdaHwCfg.Modules.Count();
+        PdaHwHeadRow(modWord, mods);
+        for (int m = 0; m < mods && m < PDA_HW_ROWS_MAX; m++)
         {
-            OZ_ModuleSpec ms = m_PdaHwCfg.Modules[i];
-            string mline = "M   " + ms.ClassName;
-            mline = mline + "   " + PdaHwModSum(ms);
-            lb.AddItem(mline, NULL, 0);
-            m_PdaHwRowKind.Insert("module");
-            m_PdaHwRowIdx.Insert(i);
+            OZ_ModuleSpec ms = m_PdaHwCfg.Modules[m];
+            row = m_PdaHwRows.Add("module:" + m.ToString());
+            if (!row)
+                continue;
+            shownName = PdaHwShownName(ms.DisplayName);
+            sum = PdaHwModSum(ms);
+            PdaHwRowFill(row, "M", ms.ClassName, shownName, sum);
         }
 
-        string carWord = Widget.TranslateString("#STR_OZ_PDA_VPP_HW_CARRIERS");
-        string carHead = carWord + ": " + m_PdaHwCfg.Carriers.Count().ToString();
-        int carRow = lb.AddItem(carHead, NULL, 0);
-        lb.SetItemColor(carRow, 0, OZ_PdaVppMetal.MUTED);
-        m_PdaHwRowKind.Insert("head");
-        m_PdaHwRowIdx.Insert(-1);
-
-        for (int c = 0; c < m_PdaHwCfg.Carriers.Count(); c++)
+        int cars = m_PdaHwCfg.Carriers.Count();
+        PdaHwHeadRow(carWord, cars);
+        for (int c = 0; c < cars && c < PDA_HW_ROWS_MAX; c++)
         {
             OZ_CarrierSpec cs = m_PdaHwCfg.Carriers[c];
-            string cline = "C   " + cs.ClassName;
-            cline = cline + "   " + PdaHwCarSum(cs);
-            lb.AddItem(cline, NULL, 0);
-            m_PdaHwRowKind.Insert("carrier");
-            m_PdaHwRowIdx.Insert(c);
+            row = m_PdaHwRows.Add("carrier:" + c.ToString());
+            if (!row)
+                continue;
+            shownName = PdaHwShownName(cs.DisplayName);
+            sum = PdaHwCarSum(cs);
+            PdaHwRowFill(row, "C", cs.ClassName, shownName, sum);
         }
 
-        m_PdaRepaint = false;
+        m_PdaHwHeads.Fit();
+        m_PdaHwRows.Fit();
+        PdaHwMarkRows();
     }
 
-    // "gps, 5000 m, x1.6": the kind, the range and the spy minutes when they are set, the
-    // power factor.
+    // A group's caption: "МОДУЛІ · 3", and how many of them the list shows when it is cut.
+    private void PdaHwHeadRow(string word, int count)
+    {
+        Widget head = m_PdaHwHeads.Add("head");
+        if (!head)
+            return;
+        string text = word + " · " + count.ToString();
+        int most = PDA_HW_ROWS_MAX;
+        if (count > most)
+        {
+            string shown = Widget.TranslateString("#STR_OZ_PDA_VPP_HW_SHOWN");
+            text = text + ", " + shown;
+            text = text + " " + most.ToString();
+        }
+        PdaRowText(head, "HwHeadText", text, ARGB(255, 160, 159, 153));
+    }
+
+    private void PdaHwRowFill(Widget row, string mark, string cls, string shown, string sum)
+    {
+        int cInk = ARGB(255, 224, 223, 218);
+        int cMuted = ARGB(255, 160, 159, 153);
+        int cAccent = ARGB(255, 232, 120, 43);
+        PdaRowText(row, "HwRowMark", mark, cAccent);
+        PdaRowText(row, "HwRowCls", cls, cInk);
+        PdaRowText(row, "HwRowName", shown, cMuted);
+        PdaRowText(row, "HwRowSum", sum, cMuted);
+    }
+
+    // The picked entry's row is lit (the accent's frame and soft ground, as the template
+    // carries them); the others lie on the list's plain ground. None is lit for a new
+    // entry or an empty card.
+    private void PdaHwMarkRows()
+    {
+        if (!m_PdaHwRows)
+            return;
+
+        int cAccent = ARGB(255, 232, 120, 43);
+        int cPicked = ARGB(255, 47, 29, 17);
+        int cHead = ARGB(255, 19, 19, 18);
+
+        string pick = "";
+        if (!m_PdaHwNew && m_PdaHwKind != "")
+            pick = m_PdaHwKind + ":" + m_PdaHwIdx.ToString();
+
+        Widget row;
+        for (int i = 0; i < m_PdaHwRows.Count(); i++)
+        {
+            row = m_PdaHwRows.Row(i);
+            if (!row)
+                continue;
+            if (pick != "" && m_PdaHwRows.Key(i) == pick)
+            {
+                OZ_VppFlex.Paint(row, "OZ_PdaVppHwRowEdge", cAccent);
+                OZ_VppFlex.Paint(row, "OZ_PdaVppHwRowBg", cPicked);
+            }
+            else
+            {
+                OZ_VppFlex.Paint(row, "OZ_PdaVppHwRowEdge", cHead);
+                OZ_VppFlex.Paint(row, "OZ_PdaVppHwRowBg", cHead);
+            }
+        }
+    }
+
+    // A name for players as the game shows it: a stringtable key read in the admin's
+    // language, a plain name as it is.
+    private string PdaHwShownName(string name)
+    {
+        if (name.IndexOf("#") == 0)
+            return Widget.TranslateString(name);
+        return name;
+    }
+
+    // "gps · 5000 м · ×1.6": the kind, the range and the spy minutes when they are set,
+    // the power factor.
     private string PdaHwModSum(OZ_ModuleSpec ms)
     {
         string sum = ms.Kind;
@@ -653,45 +909,75 @@ modded class OZ_VppAdminMenu
         if (ms.RangeM > 0)
         {
             string meters = Widget.TranslateString("#STR_OZ_PDA_VPP_UNIT_M");
-            sum = sum + ", " + ms.RangeM.ToString();
+            sum = sum + " · " + ms.RangeM.ToString();
             sum = sum + " " + meters;
         }
         if (ms.SpyMinutes > 0)
         {
             string minutes = Widget.TranslateString("#STR_OZ_PDA_VPP_UNIT_MIN");
-            sum = sum + ", " + ms.SpyMinutes.ToString();
+            sum = sum + " · " + ms.SpyMinutes.ToString();
             sum = sum + " " + minutes;
         }
-        sum = sum + ", x" + ms.PowerFactor.ToString();
+        sum = sum + " · ×" + ms.PowerFactor.ToString();
         return sum;
     }
 
-    // "writes, 6 records" or "read only, no limit".
+    // "6 записів", "без ліміту"; a carrier that cannot be written says so first.
     private string PdaHwCarSum(OZ_CarrierSpec cs)
     {
-        string sum = Widget.TranslateString("#STR_OZ_PDA_VPP_HW_READ_ONLY");
-        if (cs.Writable)
-            sum = Widget.TranslateString("#STR_OZ_PDA_VPP_HW_WRITES");
+        string sum = "";
+        if (!cs.Writable)
+        {
+            string readOnly = Widget.TranslateString("#STR_OZ_PDA_VPP_HW_READ_ONLY");
+            sum = readOnly + " · ";
+        }
         if (cs.MaxRecords > 0)
         {
-            string records = Widget.TranslateString("#STR_OZ_PDA_VPP_HW_RECORDS_N");
-            sum = sum + ", " + cs.MaxRecords.ToString();
+            string records = PdaHwRecordsWord(cs.MaxRecords);
+            sum = sum + cs.MaxRecords.ToString();
             sum = sum + " " + records;
             return sum;
         }
         string noLimit = Widget.TranslateString("#STR_OZ_PDA_VPP_HW_NO_LIMIT");
-        sum = sum + ", " + noLimit;
+        sum = sum + noLimit;
         return sum;
     }
 
-    private void PdaHwPick(int row)
+    // The word after a count of records, as Ukrainian counts: 1 запис, 21 запис, 2-4
+    // записи, 5-20 записів. English keeps "record" for one alone.
+    private string PdaHwRecordsWord(int n)
     {
-        if (!m_PdaHwCfg || row < 0 || row >= m_PdaHwRowKind.Count())
+        if (n == 1)
+            return Widget.TranslateString("#STR_OZ_PDA_VPP_HW_RECORDS_ONE");
+
+        int tens = n % 100;
+        int ones = n % 10;
+        string key = "#STR_OZ_PDA_VPP_HW_RECORDS_N";
+        if (tens < 11 || tens > 14)
+        {
+            if (ones == 1)
+                key = "#STR_OZ_PDA_VPP_HW_RECORDS_1";
+            else if (ones >= 2 && ones <= 4)
+                key = "#STR_OZ_PDA_VPP_HW_RECORDS_2";
+        }
+        return Widget.TranslateString(key);
+    }
+
+    // A row of the list was clicked: its entry on the card.
+    private void PdaHwPickKey(string key)
+    {
+        if (!m_PdaHwCfg)
             return;
-        string kind = m_PdaHwRowKind[row];
-        if (kind == "head")
+        int colon = key.IndexOf(":");
+        if (colon < 1)
             return;
-        PdaHwFill(kind, m_PdaHwRowIdx[row]);
+        string kind = key.Substring(0, colon);
+        int idx = key.Substring(colon + 1, key.Length() - colon - 1).ToInt();
+
+        if (kind == "module" && idx >= 0 && idx < m_PdaHwCfg.Modules.Count())
+            PdaHwFill(kind, idx);
+        else if (kind == "carrier" && idx >= 0 && idx < m_PdaHwCfg.Carriers.Count())
+            PdaHwFill(kind, idx);
     }
 
     private void PdaHwFill(string kind, int idx)
@@ -729,6 +1015,7 @@ modded class OZ_VppAdminMenu
         }
 
         m_PdaFill = false;
+        PdaHwMarkRows();
         PdaHwPaintCard();
     }
 
@@ -769,7 +1056,7 @@ modded class OZ_VppAdminMenu
         }
 
         m_PdaFill = false;
-        PdaHwSelectPicked();
+        PdaHwMarkRows();
         PdaHwPaintCard();
         if (kind == "module")
             Hint("#STR_OZ_PDA_VPP_H_NEW_MOD");
@@ -783,7 +1070,7 @@ modded class OZ_VppAdminMenu
         m_PdaHwIdx   = -1;
         m_PdaHwClass = "";
         m_PdaHwNew   = false;
-        PdaHwSelectPicked();
+        PdaHwMarkRows();
         PdaHwPaintCard();
     }
 
@@ -817,7 +1104,7 @@ modded class OZ_VppAdminMenu
     {
         if (m_PdaHwKind == "" || m_PdaHwNew)
         {
-            PdaHwSelectPicked();
+            PdaHwMarkRows();
             PdaHwPaintCard();
             return;
         }
@@ -836,11 +1123,10 @@ modded class OZ_VppAdminMenu
         if (!keepForm)
         {
             PdaHwFill(m_PdaHwKind, at);
-            PdaHwSelectPicked();
             return;
         }
 
-        PdaHwSelectPicked();
+        PdaHwMarkRows();
         PdaHwPaintCard();
         if (shown)
             Hint("#STR_OZ_PDA_VPP_H_KEPT");
@@ -893,60 +1179,40 @@ modded class OZ_VppAdminMenu
         return false;
     }
 
-    // The list's highlight on the card's entry; none for a new entry or an empty card.
-    private void PdaHwSelectPicked()
-    {
-        TextListboxWidget lb = TextListboxWidget.Cast(M_SUB_WIDGET.FindAnyWidget("HwList"));
-        if (!lb)
-            return;
-        int row = -1;
-        if (!m_PdaHwNew)
-        {
-            for (int i = 0; i < m_PdaHwRowKind.Count(); i++)
-            {
-                if (m_PdaHwRowKind[i] == m_PdaHwKind && m_PdaHwRowIdx[i] == m_PdaHwIdx)
-                    row = i;
-            }
-        }
-        m_PdaRepaint = true;
-        lb.SelectRow(row);
-        m_PdaRepaint = false;
-    }
-
-    // The card: the module box or the carrier box, its title and badge, the line that
-    // says a mod declared the entry, and save and delete under the open box.
+    // The card: the module's box or the carrier's, one at a time, with its title and
+    // badge, save and delete under it and, beside them, the line that says another mod
+    // declared the entry. With no entry the title asks to pick one.
     private void PdaHwPaintCard()
     {
-        if (!M_SUB_WIDGET)
+        if (!m_PdaHwPane)
             return;
+
+        int cInk = ARGB(255, 224, 223, 218);
+        int cMuted = ARGB(255, 160, 159, 153);
+        int cAlert = ARGB(255, 245, 199, 64);
 
         bool isMod = m_PdaHwKind == "module";
         bool isCar = m_PdaHwKind == "carrier";
         bool any = isMod || isCar;
 
-        PdaShow("PdaHwEmpty", !any);
-        PdaShow("PdaHwCardTitle", any);
         PdaShow("PdaHwCardBadge", any);
-        // A panel with an edge is two widgets: the generator draws the border as a
-        // sibling, <Name>Edge, and it is shown and hidden with the panel.
         PdaShow("PdaHwModBox", isMod);
-        PdaShow("PdaHwModBoxEdge", isMod);
         PdaShow("PdaHwCarBox", isCar);
-        PdaShow("PdaHwCarBoxEdge", isCar);
-        PdaShow("BtnHwSave", any);
-        PdaShow("BtnHwDel", any);
+        PdaShow("PdaHwActs", any);
 
-        string title = m_PdaHwClass;
-        if (m_PdaHwNew && isMod)
-            title = Widget.TranslateString("#STR_OZ_PDA_VPP_HW_NEW_MOD_TITLE");
+        if (!any)
+            PdaPaneText(m_PdaHwPane, "PdaHwCardTitle", "#STR_OZ_PDA_VPP_HW_EMPTY", cMuted);
+        else if (m_PdaHwNew && isMod)
+            PdaPaneText(m_PdaHwPane, "PdaHwCardTitle", "#STR_OZ_PDA_VPP_HW_NEW_MOD_TITLE", cInk);
         else if (m_PdaHwNew)
-            title = Widget.TranslateString("#STR_OZ_PDA_VPP_HW_NEW_CAR_TITLE");
-        PdaText("PdaHwCardTitle", title, OZ_PdaVppMetal.TEXT);
+            PdaPaneText(m_PdaHwPane, "PdaHwCardTitle", "#STR_OZ_PDA_VPP_HW_NEW_CAR_TITLE", cInk);
+        else
+            PdaPaneText(m_PdaHwPane, "PdaHwCardTitle", m_PdaHwClass, cInk);
 
         if (isMod)
-            PdaText("PdaHwCardBadgeText", "#STR_OZ_PDA_VPP_HW_G_MODULE", OZ_PdaVppMetal.MUTED);
+            PdaPaneText(m_PdaHwPane, "PdaHwCardBadgeText", "#STR_OZ_PDA_VPP_HW_G_MODULE", cMuted);
         else
-            PdaText("PdaHwCardBadgeText", "#STR_OZ_PDA_VPP_HW_G_CARRIER", OZ_PdaVppMetal.MUTED);
+            PdaPaneText(m_PdaHwPane, "PdaHwCardBadgeText", "#STR_OZ_PDA_VPP_HW_G_CARRIER", cMuted);
 
         // A module another mod declared comes back with every load of the file; saving
         // makes it the admin's (an empty Origin), deleting does not help (PdaHwAskDelete).
@@ -954,19 +1220,68 @@ modded class OZ_VppAdminMenu
         OZ_ModuleSpec declared = PdaHwPickedModule();
         if (declared && declared.Origin != "")
             origin = "#STR_OZ_PDA_VPP_HW_ORIGIN";
-        PdaText("PdaHwOrigin", origin, OZ_PdaVppMetal.ALERT);
+        PdaPaneText(m_PdaHwPane, "PdaHwOrigin", origin, cAlert);
 
-        // Save and delete under the open box: the carrier's box is shorter.
-        float s = UnitScale();
-        float y = 372;
-        if (isCar)
-            y = 286;
-        PdaMove("BtnHwSave", 24 * s, y * s);
-        PdaMove("BtnHwDel", 172 * s, y * s);
-        PdaMove("PdaHwHint", 24 * s, (y + 44) * s);
-
+        PdaHwPlace();
         PdaHwPaintWritable();
         PdaHwPaintGameNames();
+        PdaHwPaintKindNote();
+
+        // The title and the badge follow the words; so do the captions of a box that was
+        // hidden until now.
+        m_PdaFitTries = 30;
+    }
+
+    // The carrier's box stands in the module's place (they show one at a time) and the
+    // actions under the open box. The window's resize rule puts both back where the
+    // layout has them, so this runs again after every resize.
+    private void PdaHwPlace()
+    {
+        if (!m_PdaHwPane)
+            return;
+
+        float s = UnitScale();
+        float under = PDA_HW_BOX_Y + PDA_HW_MOD_H + PDA_HW_GAP;
+        if (m_PdaHwKind == "carrier")
+            under = PDA_HW_BOX_Y + PDA_HW_CAR_H + PDA_HW_GAP;
+
+        PdaMove("PdaHwCarBox", PDA_HW_X * s, PDA_HW_BOX_Y * s);
+        PdaMove("PdaHwActs", PDA_HW_X * s, under * s);
+        PdaHwFlowTitle();
+    }
+
+    // The badge hugs its word and stands 12 units after the title's last letter. False:
+    // the words do not measure yet (the page is not on screen).
+    private bool PdaHwFlowTitle()
+    {
+        if (!m_PdaHwPane)
+            return true;
+        TextWidget title = TextWidget.Cast(m_PdaHwPane.FindAnyWidget("PdaHwCardTitle"));
+        Widget badge = m_PdaHwPane.FindAnyWidget("PdaHwCardBadge");
+        TextWidget word = TextWidget.Cast(m_PdaHwPane.FindAnyWidget("PdaHwCardBadgeText"));
+        if (!title || !badge || !word)
+            return true;
+
+        // The title's line is as wide as the card allows: its words are of any length.
+        float s = UnitScale();
+        title.SetSize(820 * s, PDA_HW_TITLE_H * s);
+        if (!badge.IsVisible())
+            return true;
+
+        int titleW = OZ_VppFlex.TextWidth(title);
+        int wordW = OZ_VppFlex.TextWidth(word);
+        if (titleW <= 0 || wordW <= 0)
+            return false;
+
+        float badgeW = wordW + 16 * s;
+        badge.SetPos(PDA_HW_X * s + titleW + 12 * s, PDA_HW_BADGE_Y * s);
+        badge.SetSize(badgeW, PDA_HW_BADGE_H * s);
+        Widget ground = m_PdaHwPane.FindAnyWidget("PdaHwCardBadgeBg");
+        if (ground)
+            ground.SetSize(badgeW, PDA_HW_BADGE_H * s);
+        word.SetPos(8 * s, 2 * s);
+        word.SetSize(wordW + 2, 14 * s);
+        return true;
     }
 
     // The card's module as the file has it; null for a carrier, a new entry or none.
@@ -982,27 +1297,26 @@ modded class OZ_VppAdminMenu
     // Writes: yes / no, a pair of buttons; the chosen one is lit.
     private void PdaHwPaintWritable()
     {
-        int yesBg = OZ_PdaVppMetal.PANEL;
-        int noBg = OZ_PdaVppMetal.RAISED;
-        int yesInk = OZ_PdaVppMetal.MUTED;
-        int noInk = OZ_PdaVppMetal.TEXT;
-        int yesEdge = OZ_PdaVppMetal.EDGE;
-        int noEdge = OZ_PdaVppMetal.ACCENT;
+        if (!m_PdaHwPane)
+            return;
+
+        int cInk = ARGB(255, 224, 223, 218);
+        int cMuted = ARGB(255, 160, 159, 153);
+        int cLit = ARGB(255, 53, 35, 22);
+        int cPlain = ARGB(255, 19, 19, 18);
+
         if (m_PdaHwWritable)
         {
-            yesBg = OZ_PdaVppMetal.RAISED;
-            noBg = OZ_PdaVppMetal.PANEL;
-            yesInk = OZ_PdaVppMetal.TEXT;
-            noInk = OZ_PdaVppMetal.MUTED;
-            yesEdge = OZ_PdaVppMetal.ACCENT;
-            noEdge = OZ_PdaVppMetal.EDGE;
+            OZ_VppFlex.Paint(m_PdaHwPane, "BtnHwWrYesBg", cLit);
+            OZ_VppFlex.Paint(m_PdaHwPane, "BtnHwWrNoBg", cPlain);
+            PdaColor("BtnHwWrYesText", cInk);
+            PdaColor("BtnHwWrNoText", cMuted);
+            return;
         }
-        PdaColor("BtnHwWrYesBg", yesBg);
-        PdaColor("BtnHwWrNoBg", noBg);
-        PdaColor("BtnHwWrYesText", yesInk);
-        PdaColor("BtnHwWrNoText", noInk);
-        PdaColor("BtnHwWrYesEdge", yesEdge);
-        PdaColor("BtnHwWrNoEdge", noEdge);
+        OZ_VppFlex.Paint(m_PdaHwPane, "BtnHwWrYesBg", cPlain);
+        OZ_VppFlex.Paint(m_PdaHwPane, "BtnHwWrNoBg", cLit);
+        PdaColor("BtnHwWrYesText", cMuted);
+        PdaColor("BtnHwWrNoText", cInk);
     }
 
     // Under the name for players: what the game makes of it -- a stringtable key read in
@@ -1015,17 +1329,33 @@ modded class OZ_VppAdminMenu
 
     private void PdaHwGameName(string box, string lineName)
     {
+        int cMuted = ARGB(255, 160, 159, 153);
         string typed = PdaTrimmed(box);
         if (typed == "")
         {
-            PdaText(lineName, "", OZ_PdaVppMetal.MUTED);
+            PdaText(lineName, "", cMuted);
             return;
         }
         string word = Widget.TranslateString("#STR_OZ_PDA_VPP_HW_IN_GAME");
-        string shown = typed;
-        if (typed.IndexOf("#") == 0)
-            shown = Widget.TranslateString(typed);
-        PdaText(lineName, word + " " + shown, OZ_PdaVppMetal.MUTED);
+        string shown = PdaHwShownName(typed);
+        PdaText(lineName, word + " " + shown, cMuted);
+    }
+
+    // Under the pages a module opens: what its kind does, for the three kinds the PDA
+    // knows, a kind of another mod and none at all.
+    private void PdaHwPaintKindNote()
+    {
+        string kind = PdaTrimmed("HwKind");
+        string note = "#STR_OZ_PDA_VPP_HW_K_OTHER";
+        if (kind == "")
+            note = "#STR_OZ_PDA_VPP_HW_K_NONE";
+        else if (kind == OZ_PdaConst.MOD_GPS)
+            note = "#STR_OZ_PDA_VPP_HW_K_GPS";
+        else if (kind == OZ_PdaConst.MOD_SPY)
+            note = "#STR_OZ_PDA_VPP_HW_K_SPY";
+        else if (kind == OZ_PdaConst.MOD_DECRYPTOR)
+            note = "#STR_OZ_PDA_VPP_HW_K_DEC";
+        PdaText("PdaHwKindNote", note, ARGB(255, 160, 159, 153));
     }
 
     // The kind steps through the three the PDA knows; a mod's kind is typed in the box.
@@ -1038,6 +1368,7 @@ modded class OZ_VppAdminMenu
         else if (now == OZ_PdaConst.MOD_SPY)
             nextKind = OZ_PdaConst.MOD_DECRYPTOR;
         SetEdit("HwKind", nextKind);
+        PdaHwPaintKindNote();
     }
 
     private string PdaHwFormClass()
@@ -1240,7 +1571,6 @@ modded class OZ_VppAdminMenu
         }
         SendCfg("Hardware", body);
         PdaHwRebuildList();
-        PdaHwSelectPicked();
         PdaHwPaintCard();
     }
 
@@ -1275,6 +1605,9 @@ modded class OZ_VppAdminMenu
         if (got.Length() < body.Length())
             cut = true;
         m_PdaProfCut = cut;
+        m_PdaProfBytes = body.Length();
+        m_PdaProfKept = got.Length();
+        PdaProfPaintState();
 
         if (CurrentPane() != PDA_PAGE_PROF)
             return;
@@ -1287,6 +1620,40 @@ modded class OZ_VppAdminMenu
         string sizes = body.Length().ToString() + " / ";
         sizes = sizes + got.Length().ToString() + " b";
         Hint(tooBig + " (" + sizes + ")");
+    }
+
+    // The bar's line: no file yet, the file's size, or that the editor holds less than
+    // the file and applying is off.
+    private void PdaProfPaintState()
+    {
+        if (!m_PdaProfPane)
+            return;
+
+        int cMuted = ARGB(255, 160, 159, 153);
+        int cAlert = ARGB(255, 245, 199, 64);
+
+        if (m_PdaProfBytes < 0)
+        {
+            PdaPaneText(m_PdaProfPane, "PdaProfState", "#STR_OZ_PDA_VPP_H_NOT_LOADED", cMuted);
+            return;
+        }
+
+        string bytesWord = Widget.TranslateString("#STR_OZ_PDA_VPP_BYTES");
+        string line;
+        if (m_PdaProfCut)
+        {
+            string tooBig = Widget.TranslateString("#STR_OZ_PDA_VPP_H_PROF_CUT");
+            line = tooBig + " (" + m_PdaProfBytes.ToString();
+            line = line + " / " + m_PdaProfKept.ToString();
+            line = line + " " + bytesWord + ")";
+            PdaPaneText(m_PdaProfPane, "PdaProfState", line, cAlert);
+            return;
+        }
+
+        string loaded = Widget.TranslateString("#STR_OZ_PDA_VPP_H_PROF_LOADED");
+        line = loaded + " · " + m_PdaProfBytes.ToString();
+        line = line + " " + bytesWord;
+        PdaPaneText(m_PdaProfPane, "PdaProfState", line, cMuted);
     }
 
     private void PdaProfAskApply()
@@ -1431,9 +1798,28 @@ modded class OZ_VppAdminMenu
         return outp;
     }
 
+    // A text of the window by its name: its words and its colour.
     private void PdaText(string name, string text, int ink)
     {
-        TextWidget t = TextWidget.Cast(M_SUB_WIDGET.FindAnyWidget(name));
+        PdaPaneText(M_SUB_WIDGET, name, text, ink);
+    }
+
+    // The same, looked up under one page (a page is a small tree, the window a large one).
+    private void PdaPaneText(Widget pane, string name, string text, int ink)
+    {
+        if (!pane)
+            return;
+        TextWidget t = TextWidget.Cast(pane.FindAnyWidget(name));
+        if (!t)
+            return;
+        t.SetText(text);
+        t.SetColor(ink);
+    }
+
+    // A text of a list's row.
+    private void PdaRowText(Widget row, string name, string text, int ink)
+    {
+        TextWidget t = TextWidget.Cast(row.FindAnyWidget(name));
         if (!t)
             return;
         t.SetText(text);
@@ -1454,13 +1840,6 @@ modded class OZ_VppAdminMenu
             w.Show(show);
     }
 
-    private void PdaSize(string name, float w, float h)
-    {
-        Widget x = M_SUB_WIDGET.FindAnyWidget(name);
-        if (x)
-            x.SetSize(w, h);
-    }
-
     private void PdaMove(string name, float x, float y)
     {
         Widget m = M_SUB_WIDGET.FindAnyWidget(name);
@@ -1468,73 +1847,26 @@ modded class OZ_VppAdminMenu
             m.SetPos(x, y);
     }
 
-    // A generator field is three widgets: <Name>Frame (the border), <Name>Fill one unit
-    // in, and the edit box itself six units in (four from the top for a multiline one).
-    private void PdaSizeField(string name, float w, float h)
-    {
-        float s = UnitScale();
-        PdaSize(name + "Frame", w, h);
-        PdaSize(name + "Fill", w - 2 * s, h - 2 * s);
-        PdaSize(name, w - 12 * s, h - 8 * s);
-    }
-
     // ================================================= розмір вікна
 
-    // The window changed size (OZ_VppAdminMenu.ApplyWindowSize): every page is now w x h
-    // pixels, the content area. The generator put everything in exact places, so the
-    // heads and the bars are widened here (the actions anchored to their right edge
-    // follow), and the hardware list and the profiles editor take the height. NOTHING
-    // IS READ BACK: before the engine's first layout pass a widget reads 0 x 0
-    // (dayz-modding gui-layouts §23a); every size comes from w, h and the layouts'
-    // own numbers.
+    // The window changed size (OZ_VppAdminMenu.ApplyWindowSize). The pages follow by the
+    // rule their layouts carry; the list's rows are made as wide as the list again, and
+    // what the card moved by script goes back to its place (the rule puts every widget
+    // where the layout has it).
     override void OnWindowResized(float w, float h)
     {
         super.OnWindowResized(w, h);
         if (!M_SUB_WIDGET)
             return;
 
-        float s = UnitScale();
-        float head = 60 * s;
-
-        PdaSize("PdaTunHead", w, head);
-        PdaSize("PdaTunHeadRule", w, s);
-        PdaSize("PdaTunFoot", w, head);
-        PdaSize("PdaTunFootRule", w, s);
-
-        PdaSize("PdaHwHead", w, head);
-        PdaSize("PdaHwHeadRule", w, s);
-        PdaSize("PdaHwDivider", s, h - head);
-        float listH = h - 210 * s;
-        if (listH < 60 * s)
-            listH = 60 * s;
-        PdaSize("HwList", 392 * s, listH);
-        PdaMove("PdaHwListNote", 24 * s, listH + 110 * s);
-
-        PdaSize("PdaProfHead", w, head);
-        PdaSize("PdaProfHeadRule", w, s);
-        PdaSize("PdaProfFoot", w, head);
-        PdaSize("PdaProfFootRule", w, s);
-        float edW = w - 48 * s;
-        float edH = h - 152 * s;
-        if (edW < 200 * s)
-            edW = 200 * s;
-        if (edH < 100 * s)
-            edH = 100 * s;
-        PdaSizeField("PdaProfEdit", edW, edH);
+        if (m_PdaHwHeads)
+            m_PdaHwHeads.Fit();
+        if (m_PdaHwRows)
+            m_PdaHwRows.Fit();
+        PdaHwPlace();
     }
 
     // ================================================= ввід
-
-    override bool OnItemSelected(Widget w, int x, int y, int row, int column, int oldRow, int oldColumn)
-    {
-        if (w && M_SUB_WIDGET && w.GetName() == "HwList")
-        {
-            if (!m_PdaRepaint)
-                PdaHwPick(row);
-            return true;
-        }
-        return super.OnItemSelected(w, x, y, row, column, oldRow, oldColumn);
-    }
 
     override bool OnChange(Widget w, int x, int y, bool finished)
     {
@@ -1549,6 +1881,11 @@ modded class OZ_VppAdminMenu
             if (nm == "HwName" || nm == "HwCarName")
             {
                 PdaHwPaintGameNames();
+                return true;
+            }
+            if (nm == "HwKind")
+            {
+                PdaHwPaintKindNote();
                 return true;
             }
         }
@@ -1625,6 +1962,17 @@ modded class OZ_VppAdminMenu
         {
             PdaOpenFile("Profiles");
             return true;
+        }
+
+        // A row of the hardware list: its entry on the card.
+        if (m_PdaHwRows)
+        {
+            int hwRow = m_PdaHwRows.IndexOf(w);
+            if (hwRow != -1)
+            {
+                PdaHwPickKey(m_PdaHwRows.Key(hwRow));
+                return true;
+            }
         }
 
         return super.OnClick(w, x, y, button);

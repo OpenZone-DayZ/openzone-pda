@@ -1,0 +1,108 @@
+tuning: PdaTuning.dc.html -> OpenZone_PDA_VPP/gui/layouts/oz_pda_vpp_tuning.layout
+design size 1360 x 812, measured again one, two and three steps of 240 x 160 larger
+widgets: 165; 3 of them the browser re-flows as the page grows (the rule keeps them as designed)
+
+FILES
+  OpenZone_PDA_VPP/gui/layouts/oz_pda_vpp_tuning.layout
+
+NAMED WIDGETS OF THE PAGE (FindAnyWidget)
+  BtnPdaTunOpen  ButtonWidget (parts: BtnPdaTunOpenEdge, BtnPdaTunOpenBg)
+  TunLeg0  Frame (parts: TunLeg0Bar)
+  TunLeg0Text  TextWidget (a caption: recolour only)
+  TunL_ChatMsgMaxBytes  TextWidget (filled by script)
+  TunD_ChatMsgMaxBytes  TextWidget (filled by script)
+  TunBox_ChatMsgMaxBytes  Frame (parts: TunBox_ChatMsgMaxBytesEdge, TunBox_ChatMsgMaxBytesBg)
+  Tun_ChatMsgMaxBytes  EditBox
+  TunL_ChatTitleMaxBytes  TextWidget (filled by script)
+  TunD_ChatTitleMaxBytes  TextWidget (filled by script)
+  TunBox_ChatTitleMaxBytes  Frame (parts: TunBox_ChatTitleMaxBytesEdge, TunBox_ChatTitleMaxBytesBg)
+  Tun_ChatTitleMaxBytes  EditBox
+  TunL_ChatDescMaxBytes  TextWidget (filled by script)
+  TunD_ChatDescMaxBytes  TextWidget (filled by script)
+  TunBox_ChatDescMaxBytes  Frame (parts: TunBox_ChatDescMaxBytesEdge, TunBox_ChatDescMaxBytesBg)
+  Tun_ChatDescMaxBytes  EditBox
+  TunL_ChatHistoryOpen  TextWidget (filled by script)
+  TunD_ChatHistoryOpen  TextWidget (filled by script)
+  TunBox_ChatHistoryOpen  Frame (parts: TunBox_ChatHistoryOpenEdge, TunBox_ChatHistoryOpenBg)
+  Tun_ChatHistoryOpen  EditBox
+  TunL_ChatHistoryPage  TextWidget (filled by script)
+  TunD_ChatHistoryPage  TextWidget (filled by script)
+  TunBox_ChatHistoryPage  Frame (parts: TunBox_ChatHistoryPageEdge, TunBox_ChatHistoryPageBg)
+  Tun_ChatHistoryPage  EditBox
+  TunL_ChatGroupMax  TextWidget (filled by script)
+  TunD_ChatGroupMax  TextWidget (filled by script)
+  TunBox_ChatGroupMax  Frame (parts: TunBox_ChatGroupMaxEdge, TunBox_ChatGroupMaxBg)
+  Tun_ChatGroupMax  EditBox
+  TunL_GroupInviteTtlSeconds  TextWidget (filled by script)
+  TunD_GroupInviteTtlSeconds  TextWidget (filled by script)
+  TunBox_GroupInviteTtlSeconds  Frame (parts: TunBox_GroupInviteTtlSecondsEdge, TunBox_GroupInviteTtlSecondsBg)
+  Tun_GroupInviteTtlSeconds  EditBox
+  TunLeg1  Frame (parts: TunLeg1Bar)
+  TunLeg1Text  TextWidget (a caption: recolour only)
+  TunL_PinMaxFails  TextWidget (filled by script)
+  TunD_PinMaxFails  TextWidget (filled by script)
+  TunBox_PinMaxFails  Frame (parts: TunBox_PinMaxFailsEdge, TunBox_PinMaxFailsBg)
+  Tun_PinMaxFails  EditBox
+  TunL_PinLockoutSeconds  TextWidget (filled by script)
+  TunD_PinLockoutSeconds  TextWidget (filled by script)
+  TunBox_PinLockoutSeconds  Frame (parts: TunBox_PinLockoutSecondsEdge, TunBox_PinLockoutSecondsBg)
+  Tun_PinLockoutSeconds  EditBox
+  TunLeg2  Frame (parts: TunLeg2Bar)
+  TunLeg2Text  TextWidget (a caption: recolour only)
+  TunL_NoteTitleMaxBytes  TextWidget (filled by script)
+  TunD_NoteTitleMaxBytes  TextWidget (filled by script)
+  TunBox_NoteTitleMaxBytes  Frame (parts: TunBox_NoteTitleMaxBytesEdge, TunBox_NoteTitleMaxBytesBg)
+  Tun_NoteTitleMaxBytes  EditBox
+  TunL_NoteBodyMaxBytes  TextWidget (filled by script)
+  TunD_NoteBodyMaxBytes  TextWidget (filled by script)
+  TunBox_NoteBodyMaxBytes  Frame (parts: TunBox_NoteBodyMaxBytesEdge, TunBox_NoteBodyMaxBytesBg)
+  Tun_NoteBodyMaxBytes  EditBox
+  TunLeg3  Frame (parts: TunLeg3Bar)
+  TunLeg3Text  TextWidget (a caption: recolour only)
+  TunL_FriendReachMeters  TextWidget (filled by script)
+  TunD_FriendReachMeters  TextWidget (filled by script)
+  TunBox_FriendReachMeters  Frame (parts: TunBox_FriendReachMetersEdge, TunBox_FriendReachMetersBg)
+  Tun_FriendReachMeters  EditBox
+  TunL_SwapOfferTtlSeconds  TextWidget (filled by script)
+  TunD_SwapOfferTtlSeconds  TextWidget (filled by script)
+  TunBox_SwapOfferTtlSeconds  Frame (parts: TunBox_SwapOfferTtlSecondsEdge, TunBox_SwapOfferTtlSecondsBg)
+  Tun_SwapOfferTtlSeconds  EditBox
+  TunLeg4  Frame (parts: TunLeg4Bar)
+  TunLeg4Text  TextWidget (a caption: recolour only)
+  TunL_MarkerNameMaxBytes  TextWidget (filled by script)
+  TunD_MarkerNameMaxBytes  TextWidget (filled by script)
+  TunBox_MarkerNameMaxBytes  Frame (parts: TunBox_MarkerNameMaxBytesEdge, TunBox_MarkerNameMaxBytesBg)
+  Tun_MarkerNameMaxBytes  EditBox
+  TunL_MarkerDescMaxBytes  TextWidget (filled by script)
+  TunD_MarkerDescMaxBytes  TextWidget (filled by script)
+  TunBox_MarkerDescMaxBytes  Frame (parts: TunBox_MarkerDescMaxBytesEdge, TunBox_MarkerDescMaxBytesBg)
+  Tun_MarkerDescMaxBytes  EditBox
+  TunL_MapHome  TextWidget (filled by script)
+  TunD_MapHome  RichText (filled by script)
+  TunBox_MapHome  Frame (parts: TunBox_MapHomeEdge, TunBox_MapHomeBg)
+  Tun_MapHome  EditBox
+  TunLeg5  Frame (parts: TunLeg5Bar)
+  TunLeg5Text  TextWidget (a caption: recolour only)
+  TunL_ToastSeconds  TextWidget (filled by script)
+  TunD_ToastSeconds  TextWidget (filled by script)
+  TunBox_ToastSeconds  Frame (parts: TunBox_ToastSecondsEdge, TunBox_ToastSecondsBg)
+  Tun_ToastSeconds  EditBox
+  TunL_RouteAdvanceMeters  TextWidget (filled by script)
+  TunD_RouteAdvanceMeters  TextWidget (filled by script)
+  TunBox_RouteAdvanceMeters  Frame (parts: TunBox_RouteAdvanceMetersEdge, TunBox_RouteAdvanceMetersBg)
+  Tun_RouteAdvanceMeters  EditBox
+  TunL_BeaconPushSeconds  TextWidget (filled by script)
+  TunD_BeaconPushSeconds  TextWidget (filled by script)
+  TunBox_BeaconPushSeconds  Frame (parts: TunBox_BeaconPushSecondsEdge, TunBox_BeaconPushSecondsBg)
+  Tun_BeaconPushSeconds  EditBox
+  PdaTunDirty  TextWidget (filled by script)
+  BtnPdaTunDrop  ButtonWidget (parts: BtnPdaTunDropEdge, BtnPdaTunDropBg)
+  BtnPdaTunSave  ButtonWidget (parts: BtnPdaTunSaveBg)
+
+CSS THE ENGINE HAS NO ANSWER FOR
+  border-radius  x28
+
+RESIZE: WHERE THE BROWSER RE-FLOWS (a text unwraps, a box changes its row); the first of them
+  Panel pt14
+  Panel pt16
+  Frame TunLeg5

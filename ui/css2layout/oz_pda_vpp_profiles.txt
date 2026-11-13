@@ -1,0 +1,16 @@
+profiles: PdaProfiles.html -> OpenZone_PDA_VPP/gui/layouts/oz_pda_vpp_profiles.layout
+design size 1360 x 812, measured again one, two and three steps of 240 x 160 larger
+widgets: 24; 0 of them the browser re-flows as the page grows (the rule keeps them as designed)
+
+FILES
+  OpenZone_PDA_VPP/gui/layouts/oz_pda_vpp_profiles.layout
+
+NAMED WIDGETS OF THE PAGE (FindAnyWidget)
+  BtnPdaProfOpen  ButtonWidget (parts: BtnPdaProfOpenEdge, BtnPdaProfOpenBg)
+  PdaProfEdit  MultilineEditBox
+  PdaProfState  TextWidget (filled by script)
+  BtnPdaProfReload  ButtonWidget (parts: BtnPdaProfReloadEdge, BtnPdaProfReloadBg)
+  BtnPdaProfApply  ButtonWidget (parts: BtnPdaProfApplyBg)
+
+CSS THE ENGINE HAS NO ANSWER FOR
+  border-radius  x4

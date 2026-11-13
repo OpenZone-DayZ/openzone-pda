@@ -1,0 +1,61 @@
+hardware: PdaHardware.dc.html -> OpenZone_PDA_VPP/gui/layouts/oz_pda_vpp_hardware.layout
+design size 1360 x 812, measured again one, two and three steps of 240 x 160 larger
+widgets: 125; 0 of them the browser re-flows as the page grows (the rule keeps them as designed)
+
+FILES
+  OpenZone_PDA_VPP/gui/layouts/oz_pda_vpp_hardware.layout
+  OpenZone_PDA_VPP/gui/layouts/oz_pda_vpp_hw_head.layout
+  OpenZone_PDA_VPP/gui/layouts/oz_pda_vpp_hw_row.layout
+
+NAMED WIDGETS OF THE PAGE (FindAnyWidget)
+  BtnHwNewMod  ButtonWidget (parts: BtnHwNewModEdge, BtnHwNewModBg)
+  BtnHwNewCar  ButtonWidget (parts: BtnHwNewCarEdge, BtnHwNewCarBg)
+  PdaHwList  Frame
+  PdaHwListRows  WrapSpacer: the list's rows go here (oz_pda_vpp_hw_head, oz_pda_vpp_hw_row); its ScrollWidget is PdaHwListScroll
+  PdaHwCard  Frame
+  PdaHwCardTitle  TextWidget (filled by script)
+  PdaHwCardBadge  Frame (parts: PdaHwCardBadgeBg)
+  PdaHwCardBadgeText  TextWidget (filled by script)
+  PdaHwModBox  Frame
+  PdaHwModLeg  Frame (parts: PdaHwModLegBar)
+  PdaHwModLegText  TextWidget (a caption: recolour only)
+  HwClass  EditBox
+  HwName  EditBox
+  HwNameGame  TextWidget (filled by script)
+  HwKind  EditBox
+  BtnHwKind  ButtonWidget
+  HwRange  EditBox
+  HwPower  EditBox
+  HwSpy  EditBox
+  HwPages  EditBox
+  PdaHwKindNote  TextWidget (filled by script)
+  PdaHwCarBox  Frame
+  PdaHwCarLeg  Frame (parts: PdaHwCarLegBar)
+  PdaHwCarLegText  TextWidget (a caption: recolour only)
+  HwCarClass  EditBox
+  HwCarName  EditBox
+  HwCarNameGame  TextWidget (filled by script)
+  BtnHwWrYes  ButtonWidget (parts: BtnHwWrYesBg)
+  BtnHwWrYesText  TextWidget (a caption: recolour only)
+  BtnHwWrNo  ButtonWidget (parts: BtnHwWrNoBg, BtnHwWrNoLine)
+  BtnHwWrNoText  TextWidget (a caption: recolour only)
+  HwMarks  EditBox
+  PdaHwActs  Frame
+  BtnHwSave  ButtonWidget (parts: BtnHwSaveBg)
+  BtnHwDel  ButtonWidget (parts: BtnHwDelEdge, BtnHwDelBg)
+  PdaHwOrigin  TextWidget (filled by script)
+
+ROW TEMPLATES
+  oz_pda_vpp_hw_head.layout  root OZ_PdaVppHwHead (Frame), 2 in the sample, 407 x 24 units, list PdaHwListRows
+      OZ_PdaVppHwHead  Frame
+      HwHeadText  TextWidget (filled by script)
+  oz_pda_vpp_hw_row.layout  root OZ_PdaVppHwRow (Button), 6 in the sample, 407 x 52 units, list PdaHwListRows
+      OZ_PdaVppHwRow  ButtonWidget (parts: OZ_PdaVppHwRowEdge, OZ_PdaVppHwRowBg)
+      HwRowMark  TextWidget (filled by script)
+      HwRowCls  TextWidget (filled by script)
+      HwRowName  TextWidget (filled by script)
+      HwRowSum  TextWidget (filled by script)
+
+CSS THE ENGINE HAS NO ANSWER FOR
+  border-radius  x20
+  letter-spacing 0.5px (no tracked face for Fira Sans 400)  x1
